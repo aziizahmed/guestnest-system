@@ -9,10 +9,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import RoomAllocationForm from "@/components/RoomAllocationForm";
-import { RoomAllocation } from "@/types";
+import type { RoomAllocation as RoomAllocationType } from "@/types";
 
 const RoomAllocation = () => {
-  const [allocations, setAllocations] = useState<RoomAllocation[]>([]);
+  const [allocations, setAllocations] = useState<RoomAllocationType[]>([]);
   const { toast } = useToast();
 
   // Mock data - replace with actual data from your state management
@@ -26,8 +26,8 @@ const RoomAllocation = () => {
     { id: "2", name: "Jane Smith" },
   ];
 
-  const onSubmit = (data: Omit<RoomAllocation, "id" | "status">) => {
-    const newAllocation: RoomAllocation = {
+  const onSubmit = (data: Omit<RoomAllocationType, "id" | "status">) => {
+    const newAllocation: RoomAllocationType = {
       ...data,
       id: Date.now().toString(),
       status: "active",
