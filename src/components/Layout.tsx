@@ -1,4 +1,4 @@
-import { Users, Home, CreditCard, Bell } from "lucide-react";
+import { Users, Home, CreditCard, Bell, Tool, Wallet, BedDouble } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -7,7 +7,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const navigation = [
     { name: "Dashboard", href: "/", icon: Home },
     { name: "Tenants", href: "/tenants", icon: Users },
-    { name: "Rooms", href: "/rooms", icon: CreditCard },
+    { name: "Rooms", href: "/rooms", icon: BedDouble },
+    { name: "Room Allocation", href: "/room-allocation", icon: CreditCard },
+    { name: "Maintenance", href: "/maintenance", icon: Tool },
+    { name: "Expenses", href: "/expenses", icon: Wallet },
   ];
 
   return (
