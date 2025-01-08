@@ -19,29 +19,41 @@ import {
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
-
-interface TenantFormData {
-  name: string;
-  email: string;
-  phone: string;
-  emergencyContact: string;
-}
+import { Tenant } from "@/types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Tenants = () => {
-  const [tenants, setTenants] = useState<TenantFormData[]>([]);
+  const [tenants, setTenants] = useState<Tenant[]>([]);
   const { toast } = useToast();
 
-  const form = useForm<TenantFormData>({
+  const form = useForm<Tenant>({
     defaultValues: {
+      id: "",
       name: "",
       email: "",
       phone: "",
       emergencyContact: "",
+      joinDate: "",
+      leaseEnd: "",
+      preferences: {
+        roomType: "",
+        maxRent: 0,
+      },
     },
   });
 
-  const onSubmit = (data: TenantFormData) => {
-    setTenants([...tenants, data]);
+  const onSubmit = (data: Tenant) => {
+    const newTenant = {
+      ...data,
+      id: Date.now().toString(),
+    };
+    setTenants([...tenants, newTenant]);
     toast({
       title: "Success",
       description: "Tenant added successfully",
@@ -60,7 +72,7 @@ const Tenants = () => {
               Add Tenant
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>Add New Tenant</DialogTitle>
             </DialogHeader>
@@ -86,7 +98,7 @@ const Tenants = () => {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="john@example.com" {...field} />
+                        <Input type="email" placeholder="john@example.com" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -118,6 +130,67 @@ const Tenants = () => {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="joinDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Join Date</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="leaseEnd"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Lease End Date</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="preferences.roomType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Preferred Room Type</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select room type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="single">Single</SelectItem>
+                          <SelectItem value="double">Double</SelectItem>
+                          <SelectItem value="triple">Triple</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="preferences.maxRent"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Maximum Rent Budget</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="5000" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <Button type="submit" className="w-full">
                   Add Tenant
                 </Button>
@@ -128,17 +201,24 @@ const Tenants = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {tenants.map((tenant, index) => (
+        {tenants.map((tenant) => (
           <div
-            key={index}
+            key={tenant.id}
             className="bg-white p-6 rounded-lg shadow-sm border border-gray-200"
           >
             <h3 className="font-semibold text-lg mb-2">{tenant.name}</h3>
-            <p className="text-gray-600 text-sm mb-1">{tenant.email}</p>
-            <p className="text-gray-600 text-sm mb-1">{tenant.phone}</p>
-            <p className="text-gray-600 text-sm">
-              Emergency: {tenant.emergencyContact}
-            </p>
+            <div className="space-y-1 text-sm text-gray-600">
+              <p>Email: {tenant.email}</p>
+              <p>Phone: {tenant.phone}</p>
+              <p>Emergency Contact: {tenant.emergencyContact}</p>
+              <p>Join Date: {tenant.joinDate}</p>
+              <p>Lease Ends: {tenant.leaseEnd}</p>
+              <div className="mt-2 pt-2 border-t border-gray-100">
+                <p className="font-medium text-gray-700">Preferences</p>
+                <p>Room Type: {tenant.preferences?.roomType}</p>
+                <p>Max Rent: ₹{tenant.preferences?.maxRent}</p>
+              </div>
+            </div>
           </div>
         ))}
       </div>
