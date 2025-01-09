@@ -40,3 +40,19 @@ export interface RoomAllocation {
   duration: string;
   status: "active" | "upcoming" | "ended";
 }
+
+export interface Payment {
+  id: string;
+  tenantId: string;
+  amount: number;
+  date: string;
+  status: 'paid' | 'pending' | 'overdue';
+  paymentMethod?: string;
+  notes?: string;
+}
+
+export interface PaymentSummary {
+  totalPaid: number;
+  totalPending: number;
+  totalOverdue: number;
+}

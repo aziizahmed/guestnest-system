@@ -5,6 +5,7 @@ import Rooms from "./pages/Rooms";
 import RoomAllocation from "./pages/RoomAllocation";
 import Maintenance from "./pages/Maintenance";
 import Expenses from "./pages/Expenses";
+import Payments from "./pages/Payments";
 import { Toaster } from "@/components/ui/toaster";
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Route path="/room-allocation" element={<RoomAllocation />} />
         <Route path="/maintenance" element={<Maintenance />} />
         <Route path="/expenses" element={<Expenses />} />
+        <Route path="/payments" element={<Payments />} />
       </Routes>
       <Toaster />
     </Router>
