@@ -7,7 +7,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -41,6 +40,8 @@ const formSchema = z.object({
   }),
 });
 
+type FormValues = z.infer<typeof formSchema>;
+
 interface AddTenantFormProps {
   onSubmit: (data: Tenant) => void;
   rooms: Room[];
@@ -50,7 +51,7 @@ export function AddTenantForm({ onSubmit, rooms }: AddTenantFormProps) {
   const [selectedBuilding, setSelectedBuilding] = useState<string>("");
   const [selectedFloor, setSelectedFloor] = useState<string>("");
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
@@ -63,8 +64,8 @@ export function AddTenantForm({ onSubmit, rooms }: AddTenantFormProps) {
       floor: "",
       roomId: "",
       preferences: {
-        roomType: "single", // Set a default value for required field
-        maxRent: 0, // Set a default value for required field
+        roomType: "single", // Default value for required field
+        maxRent: 0, // Default value for required field
         floor: "",
       },
     },
@@ -89,7 +90,7 @@ export function AddTenantForm({ onSubmit, rooms }: AddTenantFormProps) {
     form.setValue("roomId", "");
   };
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
+  const handleSubmit = (values: FormValues) => {
     const newTenant: Tenant = {
       id: Date.now().toString(),
       name: values.name,
@@ -98,7 +99,11 @@ export function AddTenantForm({ onSubmit, rooms }: AddTenantFormProps) {
       emergencyContact: values.emergencyContact,
       joinDate: values.joinDate,
       leaseEnd: values.leaseEnd,
-      preferences: values.preferences,
+      preferences: {
+        roomType: values.preferences.roomType,
+        maxRent: values.preferences.maxRent,
+        floor: values.preferences.floor,
+      },
     };
     onSubmit(newTenant);
     form.reset();
