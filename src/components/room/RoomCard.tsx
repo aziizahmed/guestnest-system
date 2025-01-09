@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Room } from "@/types";
-import { BedDouble, Users, IndianRupee, Building, Stairs } from "lucide-react";
+import { BedDouble, Users, IndianRupee, Building } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface RoomCardProps {
@@ -50,7 +50,7 @@ export function RoomCard({ room }: RoomCardProps) {
           Block {room.building}
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Stairs className="h-4 w-4" />
+          <Building className="h-4 w-4" />
           Floor {room.floor}
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-600">

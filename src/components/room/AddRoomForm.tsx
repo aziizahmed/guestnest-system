@@ -28,7 +28,7 @@ const formSchema = z.object({
   capacity: z.string().min(1, "Capacity is required"),
   price: z.string().min(1, "Price is required"),
   status: z.enum(["available", "occupied", "maintenance"]),
-  currentOccupancy: z.string().optional(),
+  currentOccupancy: z.string().default("0"),
 });
 
 interface AddRoomFormProps {
@@ -43,7 +43,7 @@ export function AddRoomForm({ onSubmit, preferredType }: AddRoomFormProps) {
       building: "",
       floor: "",
       number: "",
-      type: "",
+      type: preferredType || "",
       capacity: "",
       price: "",
       status: "available",
@@ -51,10 +51,17 @@ export function AddRoomForm({ onSubmit, preferredType }: AddRoomFormProps) {
     },
   });
 
-  const handleSubmit = (data: z.infer<typeof formSchema>) => {
+  const handleSubmit = (values: z.infer<typeof formSchema>) => {
     const newRoom: Room = {
-      ...data,
       id: Date.now().toString(),
+      building: values.building,
+      floor: values.floor,
+      number: values.number,
+      type: values.type,
+      capacity: values.capacity,
+      price: values.price,
+      status: values.status,
+      currentOccupancy: Number(values.currentOccupancy),
     };
     onSubmit(newRoom);
     form.reset();
