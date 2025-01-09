@@ -9,12 +9,13 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Tenant } from "@/types";
+import { Room, Tenant } from "@/types";
 import { TenantCard } from "@/components/tenant/TenantCard";
 import { AddTenantForm } from "@/components/tenant/AddTenantForm";
 
 const Tenants = () => {
   const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]); // In a real app, this would come from an API
   const { toast } = useToast();
 
   const handleAddTenant = (data: Tenant) => {
@@ -36,11 +37,11 @@ const Tenants = () => {
               Add Tenant
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Add New Tenant</DialogTitle>
             </DialogHeader>
-            <AddTenantForm onSubmit={handleAddTenant} />
+            <AddTenantForm onSubmit={handleAddTenant} rooms={rooms} />
           </DialogContent>
         </Dialog>
       </div>
