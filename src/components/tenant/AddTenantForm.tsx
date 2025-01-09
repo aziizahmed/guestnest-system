@@ -63,8 +63,8 @@ export function AddTenantForm({ onSubmit, rooms }: AddTenantFormProps) {
       floor: "",
       roomId: "",
       preferences: {
-        roomType: "",
-        maxRent: 0,
+        roomType: "single", // Set a default value for required field
+        maxRent: 0, // Set a default value for required field
         floor: "",
       },
     },
