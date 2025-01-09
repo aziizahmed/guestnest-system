@@ -21,6 +21,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { RoomSelectionGrid } from "./RoomSelectionGrid";
 import { useState } from "react";
+import { PersonalInfoFields } from "./PersonalInfoFields";
+import { LeaseFields } from "./LeaseFields";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -35,6 +37,7 @@ const formSchema = z.object({
   preferences: z.object({
     roomType: z.string().min(1, "Room type is required"),
     maxRent: z.number().min(0, "Max rent must be positive"),
+    floor: z.string().optional(),
   }),
 });
 
@@ -62,6 +65,7 @@ export function AddTenantForm({ onSubmit, rooms }: AddTenantFormProps) {
       preferences: {
         roomType: "",
         maxRent: 0,
+        floor: "",
       },
     },
   });
@@ -102,94 +106,9 @@ export function AddTenantForm({ onSubmit, rooms }: AddTenantFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="John Doe" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="john@example.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Phone</FormLabel>
-                <FormControl>
-                  <Input placeholder="+1234567890" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="emergencyContact"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Emergency Contact</FormLabel>
-                <FormControl>
-                  <Input placeholder="+1234567890" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="joinDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Join Date</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="leaseEnd"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Lease End Date</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        <PersonalInfoFields form={form} />
+        <LeaseFields form={form} />
 
         <div className="grid grid-cols-2 gap-4">
           <FormField
