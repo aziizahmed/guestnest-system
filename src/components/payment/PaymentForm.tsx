@@ -44,14 +44,23 @@ export function PaymentForm({ onSubmit, tenants }: PaymentFormProps) {
       status: "paid",
       date: new Date().toISOString().split('T')[0],
       paymentMethod: "cash",
+      tenantId: "", // Initialize with empty string
+      notes: "", // Initialize with empty string
     },
   });
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
+    // Create payment object with all required fields
     const payment: Payment = {
       id: Date.now().toString(),
-      ...values,
+      tenantId: values.tenantId,
+      amount: values.amount,
+      date: values.date,
+      status: values.status,
+      paymentMethod: values.paymentMethod,
+      notes: values.notes || "", // Provide empty string if notes is undefined
     };
+    
     onSubmit(payment);
     toast({
       title: "Success",
