@@ -25,7 +25,9 @@ export interface Room {
   capacity: string;
   price: string;
   status: "available" | "occupied" | "maintenance";
-  floor?: string;
+  floor: string;
+  building?: string;
+  currentOccupancy?: number;
   amenities?: string[];
   currentTenants?: string[];
 }
