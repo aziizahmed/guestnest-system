@@ -44,7 +44,7 @@ export function PaymentForm({ onSubmit, tenants }: PaymentFormProps) {
       status: "paid",
       date: new Date().toISOString().split('T')[0],
       paymentMethod: "cash",
-      tenantId: "select_tenant", // Initialize with a valid non-empty value
+      tenantId: "",
       notes: "",
     },
   });
@@ -84,7 +84,6 @@ export function PaymentForm({ onSubmit, tenants }: PaymentFormProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="select_tenant">Select a tenant</SelectItem>
                   {tenants.map((tenant) => (
                     <SelectItem key={tenant.id} value={tenant.id}>
                       {tenant.name}
