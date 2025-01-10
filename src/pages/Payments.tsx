@@ -12,14 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { PaymentFilters, type PaymentFilters as PaymentFiltersType } from "@/components/payment/PaymentFilters";
 
 // Dummy data
 const dummyTenants: Tenant[] = [
@@ -30,7 +23,8 @@ const dummyTenants: Tenant[] = [
     phone: "1234567890",
     emergencyContact: "9876543210",
     joinDate: "2024-01-01",
-    leaseEnd: "2024-12-31"
+    leaseEnd: "2024-12-31",
+    roomNumber: "101"
   },
   {
     id: "2",
@@ -39,7 +33,8 @@ const dummyTenants: Tenant[] = [
     phone: "2345678901",
     emergencyContact: "8765432109",
     joinDate: "2024-01-15",
-    leaseEnd: "2024-12-31"
+    leaseEnd: "2024-12-31",
+    roomNumber: "102"
   }
 ];
 
@@ -50,7 +45,7 @@ const dummyPayments: Payment[] = [
     amount: 15000,
     date: "2024-01-05",
     status: "paid",
-    paymentMethod: "UPI",
+    paymentMethod: "upi",
     notes: "January Rent"
   },
   {
@@ -59,7 +54,7 @@ const dummyPayments: Payment[] = [
     amount: 15000,
     date: "2024-01-15",
     status: "pending",
-    paymentMethod: "Bank Transfer",
+    paymentMethod: "bank_transfer",
     notes: "January Rent"
   }
 ];
@@ -67,8 +62,11 @@ const dummyPayments: Payment[] = [
 const Payments = () => {
   const [payments, setPayments] = useState<Payment[]>(dummyPayments);
   const [tenants] = useState<Tenant[]>(dummyTenants);
-  const [statusFilter, setStatusFilter] = useState<string>("");
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [filters, setFilters] = useState<PaymentFiltersType>({
+    month: "",
+    status: "",
+    search: "",
+  });
 
   const summary: PaymentSummary = {
     totalPaid: payments.filter(p => p.status === 'paid').reduce((acc, p) => acc + p.amount, 0),
@@ -82,13 +80,21 @@ const Payments = () => {
 
   const filteredPayments = payments.filter(payment => {
     const tenant = tenants.find(t => t.id === payment.tenantId);
-    const matchesStatus = statusFilter ? payment.status === statusFilter : true;
-    const matchesSearch = searchTerm
-      ? tenant?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        payment.amount.toString().includes(searchTerm) ||
-        payment.paymentMethod?.toLowerCase().includes(searchTerm.toLowerCase())
-      : true;
-    return matchesStatus && matchesSearch;
+    const paymentDate = new Date(payment.date);
+    
+    // Filter by month
+    const monthMatch = !filters.month || paymentDate.getMonth() === Number(filters.month);
+    
+    // Filter by status
+    const statusMatch = !filters.status || payment.status === filters.status;
+    
+    // Filter by search (tenant name or room number)
+    const searchTerm = filters.search.toLowerCase();
+    const searchMatch = !searchTerm || 
+      tenant?.name.toLowerCase().includes(searchTerm) ||
+      tenant?.roomNumber?.toLowerCase().includes(searchTerm);
+
+    return monthMatch && statusMatch && searchMatch;
   });
 
   return (
@@ -112,27 +118,8 @@ const Payments = () => {
       </div>
 
       <PaymentOverview summary={summary} />
-
-      <div className="flex gap-4 mb-4">
-        <div className="flex-1">
-          <Input
-            placeholder="Search by tenant, amount, or payment method..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">All Status</SelectItem>
-            <SelectItem value="paid">Paid</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="overdue">Overdue</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      
+      <PaymentFilters onFilterChange={setFilters} />
 
       <PaymentsList payments={filteredPayments} tenants={tenants} />
     </div>

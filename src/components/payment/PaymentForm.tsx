@@ -26,7 +26,7 @@ const formSchema = z.object({
   amount: z.number().min(0, "Amount must be positive"),
   date: z.string().min(1, "Payment date is required"),
   status: z.enum(["paid", "pending", "overdue"]),
-  paymentMethod: z.string().min(1, "Payment method is required"),
+  paymentMethod: z.enum(["cash", "bank_transfer", "upi"]),
   notes: z.string().optional(),
 });
 
@@ -44,7 +44,7 @@ export function PaymentForm({ onSubmit, tenants }: PaymentFormProps) {
       status: "paid",
       date: new Date().toISOString().split('T')[0],
       paymentMethod: "cash",
-      tenantId: "",
+      tenantId: tenants[0]?.id || "no_tenant",
       notes: "",
     },
   });
@@ -86,7 +86,7 @@ export function PaymentForm({ onSubmit, tenants }: PaymentFormProps) {
                 <SelectContent>
                   {tenants.map((tenant) => (
                     <SelectItem key={tenant.id} value={tenant.id}>
-                      {tenant.name}
+                      {tenant.name} - Room {tenant.roomNumber}
                     </SelectItem>
                   ))}
                 </SelectContent>

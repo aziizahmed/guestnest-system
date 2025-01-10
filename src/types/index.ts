@@ -6,6 +6,7 @@ export interface Tenant {
   emergencyContact: string;
   joinDate: string;
   leaseEnd: string;
+  roomNumber?: string;
   preferences?: {
     roomType: string;
     maxRent: number;
@@ -47,7 +48,7 @@ export interface Payment {
   amount: number;
   date: string;
   status: 'paid' | 'pending' | 'overdue';
-  paymentMethod?: string;
+  paymentMethod: 'cash' | 'bank_transfer' | 'upi';
   notes?: string;
 }
 
