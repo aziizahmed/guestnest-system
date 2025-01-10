@@ -1,7 +1,7 @@
 import { Users, Home, CreditCard, Wallet, BedDouble } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, Outlet } from "react-router-dom";
 
-const Layout = ({ children }: { children: React.ReactNode }) => {
+const Layout = () => {
   const location = useLocation();
 
   const navigation = [
@@ -60,7 +60,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           </div>
         </div>
         <main className="flex-1 overflow-y-auto bg-gray-50 p-6">
-          {children}
+          <Outlet />
         </main>
       </div>
     </div>
