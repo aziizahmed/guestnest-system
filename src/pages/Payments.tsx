@@ -63,8 +63,8 @@ const Payments = () => {
   const [payments, setPayments] = useState<Payment[]>(dummyPayments);
   const [tenants] = useState<Tenant[]>(dummyTenants);
   const [filters, setFilters] = useState<PaymentFiltersType>({
-    month: "",
-    status: "",
+    month: "all",
+    status: "all",
     search: "",
   });
 
@@ -83,10 +83,10 @@ const Payments = () => {
     const paymentDate = new Date(payment.date);
     
     // Filter by month
-    const monthMatch = !filters.month || paymentDate.getMonth() === Number(filters.month);
+    const monthMatch = filters.month === "all" || paymentDate.getMonth() === Number(filters.month);
     
     // Filter by status
-    const statusMatch = !filters.status || payment.status === filters.status;
+    const statusMatch = filters.status === "all" || payment.status === filters.status;
     
     // Filter by search (tenant name or room number)
     const searchTerm = filters.search.toLowerCase();

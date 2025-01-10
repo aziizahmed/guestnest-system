@@ -20,8 +20,8 @@ export interface PaymentFilters {
 
 export function PaymentFilters({ onFilterChange }: PaymentFiltersProps) {
   const [filters, setFilters] = useState<PaymentFilters>({
-    month: "",
-    status: "",
+    month: "all",
+    status: "all",
     search: "",
   });
 
@@ -57,7 +57,7 @@ export function PaymentFilters({ onFilterChange }: PaymentFiltersProps) {
           <SelectValue placeholder="Select month" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">All Months</SelectItem>
+          <SelectItem value="all">All Months</SelectItem>
           {months.map((month, index) => (
             <SelectItem 
               key={month} 
@@ -78,7 +78,7 @@ export function PaymentFilters({ onFilterChange }: PaymentFiltersProps) {
           <SelectValue placeholder="Payment status" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">All Status</SelectItem>
+          <SelectItem value="all">All Status</SelectItem>
           <SelectItem value="paid">Paid</SelectItem>
           <SelectItem value="pending">Pending</SelectItem>
           <SelectItem value="overdue">Overdue</SelectItem>
