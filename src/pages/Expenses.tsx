@@ -26,7 +26,6 @@ import {
 import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { Card } from "@/components/ui/card";
-import Layout from "@/components/Layout";
 
 interface ExpenseFormData {
   category: string;
@@ -87,23 +86,22 @@ const Expenses = () => {
   const paymentModes = ["Cash", "Bank Transfer", "UPI", "Credit Card", "Debit Card"];
 
   return (
-    <Layout>
-      <div className="container mx-auto py-6">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h2 className="text-2xl font-bold">Expenses Management</h2>
-            <p className="text-gray-600">Track and manage all PG expenses</p>
-          </div>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button>Add Expense</Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
-              <DialogHeader>
-                <DialogTitle>Add New Expense</DialogTitle>
-              </DialogHeader>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+    <div className="container mx-auto py-6">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h2 className="text-2xl font-bold">Expenses Management</h2>
+          <p className="text-gray-600">Track and manage all PG expenses</p>
+        </div>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button>Add Expense</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Add New Expense</DialogTitle>
+            </DialogHeader>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <FormField
                     control={form.control}
                     name="category"
@@ -223,36 +221,35 @@ const Expenses = () => {
                   <Button type="submit" className="w-full">
                     Add Expense
                   </Button>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {expenses.map((expense, index) => (
-            <Card key={index} className="p-6 space-y-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-sm font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 capitalize">
-                    {expense.category}
-                  </span>
-                  <span className="ml-2 inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-sm font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10 capitalize">
-                    {expense.subCategory}
-                  </span>
-                </div>
-                <span className="text-lg font-semibold">₹{expense.amount}</span>
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm text-gray-600">Date: {expense.date}</p>
-                <p className="text-sm text-gray-600">Payment: {expense.paymentMode}</p>
-                <p className="text-sm text-gray-600">{expense.description}</p>
-              </div>
-            </Card>
-          ))}
-        </div>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
       </div>
-    </Layout>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {expenses.map((expense, index) => (
+          <Card key={index} className="p-6 space-y-4">
+            <div className="flex justify-between items-start">
+              <div>
+                <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-sm font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 capitalize">
+                  {expense.category}
+                </span>
+                <span className="ml-2 inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-sm font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10 capitalize">
+                  {expense.subCategory}
+                </span>
+              </div>
+              <span className="text-lg font-semibold">₹{expense.amount}</span>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-gray-600">Date: {expense.date}</p>
+              <p className="text-sm text-gray-600">Payment: {expense.paymentMode}</p>
+              <p className="text-sm text-gray-600">{expense.description}</p>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
   );
 };
 
