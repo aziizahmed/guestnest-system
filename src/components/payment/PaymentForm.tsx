@@ -44,13 +44,12 @@ export function PaymentForm({ onSubmit, tenants }: PaymentFormProps) {
       status: "paid",
       date: new Date().toISOString().split('T')[0],
       paymentMethod: "cash",
-      tenantId: "", // Initialize with empty string
-      notes: "", // Initialize with empty string
+      tenantId: "select_tenant", // Initialize with a valid non-empty value
+      notes: "",
     },
   });
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    // Create payment object with all required fields
     const payment: Payment = {
       id: Date.now().toString(),
       tenantId: values.tenantId,
@@ -58,7 +57,7 @@ export function PaymentForm({ onSubmit, tenants }: PaymentFormProps) {
       date: values.date,
       status: values.status,
       paymentMethod: values.paymentMethod,
-      notes: values.notes || "", // Provide empty string if notes is undefined
+      notes: values.notes || "",
     };
     
     onSubmit(payment);
@@ -85,6 +84,7 @@ export function PaymentForm({ onSubmit, tenants }: PaymentFormProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
+                  <SelectItem value="select_tenant">Select a tenant</SelectItem>
                   {tenants.map((tenant) => (
                     <SelectItem key={tenant.id} value={tenant.id}>
                       {tenant.name}
