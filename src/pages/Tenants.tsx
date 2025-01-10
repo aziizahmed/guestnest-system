@@ -10,13 +10,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Tenant } from "@/types";
-import { TenantCard } from "@/components/tenant/TenantCard";
-import { AddTenantForm } from "@/components/tenant/AddTenantForm";
 import { Card } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
+import { TenantTable } from "@/components/tenant/TenantTable";
+import { TenantFilters, TenantFilters as TenantFiltersType } from "@/components/tenant/TenantFilters";
+import { AddTenantForm } from "@/components/tenant/AddTenantForm";
 
 const Tenants = () => {
   const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [filters, setFilters] = useState<TenantFiltersType>({
+    status: "all",
+    search: "",
+    roomType: "all",
+  });
   const { toast } = useToast();
 
   const handleAddTenant = (data: Tenant) => {
@@ -27,11 +33,39 @@ const Tenants = () => {
     });
   };
 
-  // Sample data for the pie chart
+  const handleEditTenant = (tenant: Tenant) => {
+    // Implement edit functionality
+    console.log("Edit tenant:", tenant);
+  };
+
+  const handleDeleteTenant = (tenant: Tenant) => {
+    // Implement delete functionality
+    console.log("Delete tenant:", tenant);
+  };
+
+  const filteredTenants = tenants.filter((tenant) => {
+    const searchTerm = filters.search.toLowerCase();
+    const matchesSearch = 
+      tenant.name.toLowerCase().includes(searchTerm) ||
+      tenant.email.toLowerCase().includes(searchTerm) ||
+      (tenant.roomNumber?.toLowerCase().includes(searchTerm) ?? false);
+
+    const matchesStatus = 
+      filters.status === "all" || 
+      (filters.status === "active" && tenant.leaseEnd) ||
+      (filters.status === "pending" && !tenant.leaseEnd);
+
+    const matchesRoomType =
+      filters.roomType === "all" ||
+      tenant.preferences?.roomType === filters.roomType;
+
+    return matchesSearch && matchesStatus && matchesRoomType;
+  });
+
+  // Stats for the pie chart
   const tenantStats = [
-    { name: 'Active', value: tenants.length || 0, color: '#4CAF50' },
-    { name: 'Pending', value: 2, color: '#FFC107' },
-    { name: 'Inactive', value: 1, color: '#F44336' },
+    { name: 'Active', value: tenants.filter(t => t.leaseEnd).length || 0, color: '#4CAF50' },
+    { name: 'Pending', value: tenants.filter(t => !t.leaseEnd).length || 0, color: '#FFC107' },
   ];
 
   return (
@@ -62,11 +96,15 @@ const Tenants = () => {
         </Card>
         <Card className="p-6">
           <h3 className="text-lg font-medium">Active Tenants</h3>
-          <p className="text-3xl font-bold mt-2 text-green-600">{tenants.length}</p>
+          <p className="text-3xl font-bold mt-2 text-green-600">
+            {tenants.filter(t => t.leaseEnd).length}
+          </p>
         </Card>
         <Card className="p-6">
           <h3 className="text-lg font-medium">Pending Requests</h3>
-          <p className="text-3xl font-bold mt-2 text-yellow-600">2</p>
+          <p className="text-3xl font-bold mt-2 text-yellow-600">
+            {tenants.filter(t => !t.leaseEnd).length}
+          </p>
         </Card>
       </div>
 
@@ -95,11 +133,14 @@ const Tenants = () => {
         </div>
       </Card>
 
-      {/* Tenants Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {tenants.map((tenant) => (
-          <TenantCard key={tenant.id} tenant={tenant} />
-        ))}
+      {/* Filters and Table */}
+      <div className="space-y-4">
+        <TenantFilters onFilterChange={setFilters} />
+        <TenantTable 
+          tenants={filteredTenants}
+          onEdit={handleEditTenant}
+          onDelete={handleDeleteTenant}
+        />
       </div>
     </div>
   );
