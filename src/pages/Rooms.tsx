@@ -13,10 +13,60 @@ import { Room } from "@/types";
 import { RoomCard } from "@/components/room/RoomCard";
 import { AddRoomForm } from "@/components/room/AddRoomForm";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
+const dummyRooms: Room[] = [
+  {
+    id: "1",
+    number: "101",
+    type: "Single",
+    capacity: "1",
+    price: "5000",
+    status: "available",
+    floor: "1",
+    building: "A",
+    currentOccupancy: 0,
+    amenities: ["AC", "WiFi", "TV"],
+  },
+  {
+    id: "2",
+    number: "102",
+    type: "Double",
+    capacity: "2",
+    price: "8000",
+    status: "occupied",
+    floor: "1",
+    building: "A",
+    currentOccupancy: 2,
+    amenities: ["AC", "WiFi", "TV", "Balcony"],
+  },
+  {
+    id: "3",
+    number: "201",
+    type: "Triple",
+    capacity: "3",
+    price: "12000",
+    status: "maintenance",
+    floor: "2",
+    building: "B",
+    currentOccupancy: 0,
+    amenities: ["AC", "WiFi"],
+  },
+];
+
 const Rooms = () => {
-  const [rooms, setRooms] = useState<Room[]>([]);
+  const [rooms, setRooms] = useState<Room[]>(dummyRooms);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
   const { toast } = useToast();
 
   const handleAddRoom = (data: Room) => {
@@ -26,6 +76,18 @@ const Rooms = () => {
       description: "Room added successfully",
     });
   };
+
+  const filteredRooms = rooms.filter((room) => {
+    const matchesSearch = 
+      room.number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      room.building?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      room.type.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesStatus = statusFilter === "all" || room.status === statusFilter;
+    const matchesType = typeFilter === "all" || room.type.toLowerCase() === typeFilter;
+
+    return matchesSearch && matchesStatus && matchesType;
+  });
 
   // Sample data for the bar chart
   const occupancyData = [
@@ -80,6 +142,38 @@ const Rooms = () => {
         </Card>
       </div>
 
+      {/* Search and Filters */}
+      <div className="flex flex-col md:flex-row gap-4">
+        <Input
+          placeholder="Search rooms..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="max-w-sm"
+        />
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="available">Available</SelectItem>
+            <SelectItem value="occupied">Occupied</SelectItem>
+            <SelectItem value="maintenance">Maintenance</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={typeFilter} onValueChange={setTypeFilter}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Types</SelectItem>
+            <SelectItem value="single">Single</SelectItem>
+            <SelectItem value="double">Double</SelectItem>
+            <SelectItem value="triple">Triple</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Occupancy Chart */}
       <Card className="p-6">
         <h3 className="text-lg font-medium mb-4">Room Occupancy by Block</h3>
@@ -100,7 +194,7 @@ const Rooms = () => {
 
       {/* Rooms Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {rooms.map((room) => (
+        {filteredRooms.map((room) => (
           <RoomCard key={room.id} room={room} />
         ))}
       </div>
