@@ -7,6 +7,7 @@ import Expenses from "./pages/Expenses";
 import Payments from "./pages/Payments";
 import TenantDetails from "./pages/TenantDetails";
 import RoomDetails from "./pages/RoomDetails";
+import Hostels from "./pages/Hostels";
 import { Toaster } from "@/components/ui/toaster";
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Index />} />
+          <Route path="/hostels" element={<Hostels />} />
           <Route path="/tenants" element={<Tenants />} />
           <Route path="/tenants/:id" element={<TenantDetails />} />
           <Route path="/rooms" element={<Rooms />} />

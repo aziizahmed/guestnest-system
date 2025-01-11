@@ -1,4 +1,4 @@
-import { Users, Home, CreditCard, Wallet, BedDouble } from "lucide-react";
+import { Users, Home, CreditCard, Wallet, BedDouble, Building } from "lucide-react";
 import { Link, useLocation, Outlet } from "react-router-dom";
 
 const Layout = () => {
@@ -6,6 +6,7 @@ const Layout = () => {
 
   const navigation = [
     { name: "Dashboard", href: "/", icon: Home },
+    { name: "Hostels", href: "/hostels", icon: Building },
     { name: "Tenants", href: "/tenants", icon: Users },
     { name: "Rooms", href: "/rooms", icon: BedDouble },
     { name: "Payments", href: "/payments", icon: CreditCard },
@@ -14,7 +15,6 @@ const Layout = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
       <div className="hidden md:flex md:flex-col md:w-64 md:fixed md:inset-y-0">
         <div className="flex flex-col flex-grow pt-5 overflow-y-auto bg-white border-r">
           <div className="flex items-center flex-shrink-0 px-4">
@@ -48,7 +48,6 @@ const Layout = () => {
         </div>
       </div>
 
-      {/* Main content */}
       <div className="flex flex-col flex-1 md:pl-64">
         <div className="sticky top-0 z-10 flex-shrink-0 h-16 bg-white border-b">
           <div className="flex justify-between px-4 h-full">

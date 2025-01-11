@@ -57,3 +57,18 @@ export interface PaymentSummary {
   totalPending: number;
   totalOverdue: number;
 }
+
+export interface Hostel {
+  id: string;
+  name: string;
+  address: string;
+  totalRooms: number;
+  totalFloors: number;
+  buildings: string[];
+  amenities: string[];
+  status: 'active' | 'maintenance';
+  warden: {
+    name: string;
+    contact: string;
+  };
+}
