@@ -10,6 +10,7 @@ import { Tenant } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface TenantTableProps {
   tenants: Tenant[];
@@ -18,6 +19,8 @@ interface TenantTableProps {
 }
 
 export function TenantTable({ tenants, onEdit, onDelete }: TenantTableProps) {
+  const navigate = useNavigate();
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -34,7 +37,11 @@ export function TenantTable({ tenants, onEdit, onDelete }: TenantTableProps) {
         </TableHeader>
         <TableBody>
           {tenants.map((tenant) => (
-            <TableRow key={tenant.id}>
+            <TableRow 
+              key={tenant.id}
+              className="cursor-pointer hover:bg-gray-50"
+              onClick={() => navigate(`/tenants/${tenant.id}`)}
+            >
               <TableCell className="font-medium">{tenant.name}</TableCell>
               <TableCell>{tenant.roomNumber || "Not assigned"}</TableCell>
               <TableCell>
@@ -53,7 +60,7 @@ export function TenantTable({ tenants, onEdit, onDelete }: TenantTableProps) {
                 </Badge>
               </TableCell>
               <TableCell className="text-right">
-                <div className="flex justify-end gap-2">
+                <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                   <Button
                     variant="ghost"
                     size="icon"

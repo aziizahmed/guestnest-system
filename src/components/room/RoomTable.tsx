@@ -10,6 +10,7 @@ import { Room } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface RoomTableProps {
   rooms: Room[];
@@ -18,6 +19,8 @@ interface RoomTableProps {
 }
 
 export function RoomTable({ rooms, onEdit, onDelete }: RoomTableProps) {
+  const navigate = useNavigate();
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -35,7 +38,11 @@ export function RoomTable({ rooms, onEdit, onDelete }: RoomTableProps) {
         </TableHeader>
         <TableBody>
           {rooms.map((room) => (
-            <TableRow key={room.id}>
+            <TableRow 
+              key={room.id}
+              className="cursor-pointer hover:bg-gray-50"
+              onClick={() => navigate(`/rooms/${room.id}`)}
+            >
               <TableCell className="font-medium">{room.number}</TableCell>
               <TableCell>Block {room.building}</TableCell>
               <TableCell>{room.type}</TableCell>
@@ -58,7 +65,7 @@ export function RoomTable({ rooms, onEdit, onDelete }: RoomTableProps) {
                 {room.currentOccupancy}/{room.capacity}
               </TableCell>
               <TableCell className="text-right">
-                <div className="flex justify-end gap-2">
+                <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                   <Button
                     variant="ghost"
                     size="icon"
