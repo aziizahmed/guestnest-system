@@ -1,11 +1,26 @@
 import { Card } from "@/components/ui/card";
 import { Users, Home as HomeIcon, DollarSign, AlertCircle } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell } from 'recharts';
+import { dummyRooms, dummyTenants } from "@/data/dummyData";
 
 const stats = [
   { name: "Total Tenants", value: "24", icon: Users, change: "+2", changeType: "increase" },
   { name: "Available Rooms", value: "8", icon: HomeIcon, change: "-1", changeType: "decrease" },
   { name: "Revenue (Monthly)", value: "₹82,000", icon: DollarSign, change: "+8%", changeType: "increase" },
   { name: "Pending Requests", value: "3", icon: AlertCircle, change: "0", changeType: "neutral" },
+];
+
+// Sample data for the occupancy chart
+const occupancyData = [
+  { name: 'Block A', total: 10, occupied: 8 },
+  { name: 'Block B', total: 12, occupied: 6 },
+  { name: 'Block C', total: 8, occupied: 7 },
+];
+
+// Data for tenant distribution
+const tenantStats = [
+  { name: 'Active', value: dummyTenants.filter(t => t.leaseEnd).length || 0, color: '#4CAF50' },
+  { name: 'Pending', value: dummyTenants.filter(t => !t.leaseEnd).length || 0, color: '#FFC107' },
 ];
 
 const Index = () => {
@@ -41,6 +56,53 @@ const Index = () => {
             </div>
           </Card>
         ))}
+      </div>
+
+      {/* Charts Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Room Occupancy Chart */}
+        <Card className="p-6">
+          <h3 className="text-lg font-medium mb-4">Room Occupancy by Block</h3>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={occupancyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="total" fill="#4B5563" name="Total Rooms" />
+                <Bar dataKey="occupied" fill="#3B82F6" name="Occupied Rooms" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        {/* Tenant Distribution Chart */}
+        <Card className="p-6">
+          <h3 className="text-lg font-medium mb-4">Tenant Distribution</h3>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={tenantStats}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={80}
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {tenantStats.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Legend />
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
       </div>
 
       {/* Recent Activity */}

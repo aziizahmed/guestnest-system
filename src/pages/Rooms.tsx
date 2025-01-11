@@ -22,70 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-
-const dummyRooms: Room[] = [
-  {
-    id: "1",
-    number: "101",
-    type: "single",
-    capacity: "1",
-    price: "5000",
-    status: "available",
-    floor: "1",
-    building: "A",
-    currentOccupancy: 0,
-    amenities: ["AC", "WiFi", "TV"],
-  },
-  {
-    id: "2",
-    number: "102",
-    type: "double",
-    capacity: "2",
-    price: "8000",
-    status: "occupied",
-    floor: "1",
-    building: "A",
-    currentOccupancy: 2,
-    amenities: ["AC", "WiFi", "TV", "Balcony"],
-  },
-  {
-    id: "3",
-    number: "201",
-    type: "triple",
-    capacity: "3",
-    price: "12000",
-    status: "maintenance",
-    floor: "2",
-    building: "B",
-    currentOccupancy: 0,
-    amenities: ["AC", "WiFi"],
-  },
-  {
-    id: "4",
-    number: "202",
-    type: "single",
-    capacity: "1",
-    price: "5500",
-    status: "available",
-    floor: "2",
-    building: "B",
-    currentOccupancy: 0,
-    amenities: ["AC", "WiFi", "Balcony"],
-  },
-  {
-    id: "5",
-    number: "301",
-    type: "double",
-    capacity: "2",
-    price: "9000",
-    status: "occupied",
-    floor: "3",
-    building: "C",
-    currentOccupancy: 1,
-    amenities: ["AC", "WiFi", "TV", "Kitchen"],
-  },
-];
+import { dummyRooms } from "@/data/dummyData";
 
 const Rooms = () => {
   const [rooms, setRooms] = useState<Room[]>(dummyRooms);
@@ -104,12 +41,10 @@ const Rooms = () => {
   };
 
   const handleEditRoom = (room: Room) => {
-    // Implement edit functionality
     console.log("Edit room:", room);
   };
 
   const handleDeleteRoom = (room: Room) => {
-    // Implement delete functionality
     console.log("Delete room:", room);
   };
 
@@ -124,13 +59,6 @@ const Rooms = () => {
 
     return matchesSearch && matchesStatus && matchesType;
   });
-
-  // Sample data for the bar chart
-  const occupancyData = [
-    { name: 'Block A', total: 10, occupied: 8 },
-    { name: 'Block B', total: 12, occupied: 6 },
-    { name: 'Block C', total: 8, occupied: 7 },
-  ];
 
   return (
     <div className="space-y-6">
@@ -227,24 +155,6 @@ const Rooms = () => {
           </SelectContent>
         </Select>
       </div>
-
-      {/* Occupancy Chart */}
-      <Card className="p-6">
-        <h3 className="text-lg font-medium mb-4">Room Occupancy by Block</h3>
-        <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={occupancyData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="total" fill="#4B5563" name="Total Rooms" />
-              <Bar dataKey="occupied" fill="#3B82F6" name="Occupied Rooms" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
 
       {/* Rooms Display */}
       {viewMode === "table" ? (
