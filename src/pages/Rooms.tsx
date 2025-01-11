@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Room } from "@/types";
 import { RoomCard } from "@/components/room/RoomCard";
+import { RoomTable } from "@/components/room/RoomTable";
 import { AddRoomForm } from "@/components/room/AddRoomForm";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -27,7 +28,7 @@ const dummyRooms: Room[] = [
   {
     id: "1",
     number: "101",
-    type: "Single",
+    type: "single",
     capacity: "1",
     price: "5000",
     status: "available",
@@ -39,7 +40,7 @@ const dummyRooms: Room[] = [
   {
     id: "2",
     number: "102",
-    type: "Double",
+    type: "double",
     capacity: "2",
     price: "8000",
     status: "occupied",
@@ -51,7 +52,7 @@ const dummyRooms: Room[] = [
   {
     id: "3",
     number: "201",
-    type: "Triple",
+    type: "triple",
     capacity: "3",
     price: "12000",
     status: "maintenance",
@@ -60,6 +61,30 @@ const dummyRooms: Room[] = [
     currentOccupancy: 0,
     amenities: ["AC", "WiFi"],
   },
+  {
+    id: "4",
+    number: "202",
+    type: "single",
+    capacity: "1",
+    price: "5500",
+    status: "available",
+    floor: "2",
+    building: "B",
+    currentOccupancy: 0,
+    amenities: ["AC", "WiFi", "Balcony"],
+  },
+  {
+    id: "5",
+    number: "301",
+    type: "double",
+    capacity: "2",
+    price: "9000",
+    status: "occupied",
+    floor: "3",
+    building: "C",
+    currentOccupancy: 1,
+    amenities: ["AC", "WiFi", "TV", "Kitchen"],
+  },
 ];
 
 const Rooms = () => {
@@ -67,6 +92,7 @@ const Rooms = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [viewMode, setViewMode] = useState<"grid" | "table">("table");
   const { toast } = useToast();
 
   const handleAddRoom = (data: Room) => {
@@ -75,6 +101,16 @@ const Rooms = () => {
       title: "Success",
       description: "Room added successfully",
     });
+  };
+
+  const handleEditRoom = (room: Room) => {
+    // Implement edit functionality
+    console.log("Edit room:", room);
+  };
+
+  const handleDeleteRoom = (room: Room) => {
+    // Implement delete functionality
+    console.log("Delete room:", room);
   };
 
   const filteredRooms = rooms.filter((room) => {
@@ -100,20 +136,38 @@ const Rooms = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Rooms Overview</h2>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Room
+        <div className="flex gap-4">
+          <div className="flex gap-2">
+            <Button
+              variant={viewMode === "grid" ? "default" : "outline"}
+              onClick={() => setViewMode("grid")}
+              size="sm"
+            >
+              Grid
             </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New Room</DialogTitle>
-            </DialogHeader>
-            <AddRoomForm onSubmit={handleAddRoom} />
-          </DialogContent>
-        </Dialog>
+            <Button
+              variant={viewMode === "table" ? "default" : "outline"}
+              onClick={() => setViewMode("table")}
+              size="sm"
+            >
+              Table
+            </Button>
+          </div>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Room
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Room</DialogTitle>
+              </DialogHeader>
+              <AddRoomForm onSubmit={handleAddRoom} />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -192,12 +246,20 @@ const Rooms = () => {
         </div>
       </Card>
 
-      {/* Rooms Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredRooms.map((room) => (
-          <RoomCard key={room.id} room={room} />
-        ))}
-      </div>
+      {/* Rooms Display */}
+      {viewMode === "table" ? (
+        <RoomTable 
+          rooms={filteredRooms}
+          onEdit={handleEditRoom}
+          onDelete={handleDeleteRoom}
+        />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredRooms.map((room) => (
+            <RoomCard key={room.id} room={room} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
