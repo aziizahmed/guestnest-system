@@ -54,6 +54,7 @@ const dummyTenants: Tenant[] = [
     phone: "+1234567892",
     emergencyContact: "+1987654323",
     joinDate: "2024-02-15",
+    leaseEnd: "2024-12-31",
     roomNumber: "201",
     preferences: {
       roomType: "single",
@@ -83,6 +84,7 @@ const dummyTenants: Tenant[] = [
     phone: "+1234567894",
     emergencyContact: "+1987654325",
     joinDate: "2024-03-15",
+    leaseEnd: "2024-12-31",
     preferences: {
       roomType: "triple",
       maxRent: 12000,

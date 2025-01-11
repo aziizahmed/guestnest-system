@@ -45,7 +45,7 @@ export function RoomTable({ rooms, onEdit, onDelete }: RoomTableProps) {
                 <Badge 
                   variant={
                     room.status === "available" 
-                      ? "success" 
+                      ? "secondary" 
                       : room.status === "maintenance" 
                       ? "destructive" 
                       : "default"
