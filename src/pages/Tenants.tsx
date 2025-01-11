@@ -15,86 +15,10 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
 import { TenantTable } from "@/components/tenant/TenantTable";
 import { TenantFilters, TenantFilters as TenantFiltersType } from "@/components/tenant/TenantFilters";
 import { AddTenantForm } from "@/components/tenant/AddTenantForm";
-
-const dummyTenants: Tenant[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    email: "john@example.com",
-    phone: "+1234567890",
-    emergencyContact: "+1987654321",
-    joinDate: "2024-01-15",
-    leaseEnd: "2024-12-31",
-    roomNumber: "101",
-    preferences: {
-      roomType: "single",
-      maxRent: 6000,
-      floor: "1"
-    }
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    email: "jane@example.com",
-    phone: "+1234567891",
-    emergencyContact: "+1987654322",
-    joinDate: "2024-02-01",
-    leaseEnd: "2024-12-31",
-    roomNumber: "102",
-    preferences: {
-      roomType: "double",
-      maxRent: 8000,
-      floor: "1"
-    }
-  },
-  {
-    id: "3",
-    name: "Mike Johnson",
-    email: "mike@example.com",
-    phone: "+1234567892",
-    emergencyContact: "+1987654323",
-    joinDate: "2024-02-15",
-    leaseEnd: "2024-12-31",
-    roomNumber: "201",
-    preferences: {
-      roomType: "single",
-      maxRent: 5500,
-      floor: "2"
-    }
-  },
-  {
-    id: "4",
-    name: "Sarah Williams",
-    email: "sarah@example.com",
-    phone: "+1234567893",
-    emergencyContact: "+1987654324",
-    joinDate: "2024-03-01",
-    leaseEnd: "2024-12-31",
-    roomNumber: "202",
-    preferences: {
-      roomType: "double",
-      maxRent: 9000,
-      floor: "2"
-    }
-  },
-  {
-    id: "5",
-    name: "David Brown",
-    email: "david@example.com",
-    phone: "+1234567894",
-    emergencyContact: "+1987654325",
-    joinDate: "2024-03-15",
-    leaseEnd: "2024-12-31",
-    preferences: {
-      roomType: "triple",
-      maxRent: 12000,
-      floor: "3"
-    }
-  }
-];
+import { dummyTenants } from "@/data/dummyData";
 
 const Tenants = () => {
-  const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [tenants, setTenants] = useState<Tenant[]>(dummyTenants);
   const [filters, setFilters] = useState<TenantFiltersType>({
     status: "all",
     search: "",
