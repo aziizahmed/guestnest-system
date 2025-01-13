@@ -1,10 +1,11 @@
-import { Users, Home, CreditCard, Wallet, BedDouble, Building, FileText, Bell } from "lucide-react";
+import { Users, Home, CreditCard, Wallet, BedDouble, Building, FileText, Bell, Activity } from "lucide-react";
 import { Link, useLocation, Outlet } from "react-router-dom";
 import { ScrollArea } from "./ui/scroll-area";
 import { useState } from "react";
 
 const Layout = () => {
   const location = useLocation();
+  const [showActivity, setShowActivity] = useState(false);
   const [notifications] = useState([
     { id: 1, message: "New tenant registered", time: "2 mins ago" },
     { id: 2, message: "Payment received from Room 302", time: "1 hour ago" },
@@ -64,7 +65,15 @@ const Layout = () => {
                 {navigation.find((item) => item.href === location.pathname)?.name || "Dashboard"}
               </h1>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center space-x-4">
+              <button 
+                onClick={() => setShowActivity(!showActivity)}
+                className={`p-2 rounded-md transition-colors ${
+                  showActivity ? 'bg-primary text-white' : 'text-gray-400 hover:text-gray-500'
+                }`}
+              >
+                <Activity className="h-6 w-6" />
+              </button>
               <div className="relative">
                 <button className="p-2 text-gray-400 hover:text-gray-500">
                   <Bell className="h-6 w-6" />
@@ -77,17 +86,28 @@ const Layout = () => {
           <main className="flex-1 overflow-y-auto bg-gray-50 p-6">
             <Outlet />
           </main>
-          <div className="hidden lg:block w-64 border-l bg-white p-4">
-            <h2 className="text-lg font-semibold mb-4">Recent Activity</h2>
-            <ScrollArea className="h-[calc(100vh-10rem)]">
-              {notifications.map((notification) => (
-                <div key={notification.id} className="mb-4 p-3 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-600">{notification.message}</p>
-                  <span className="text-xs text-gray-400">{notification.time}</span>
-                </div>
-              ))}
-            </ScrollArea>
-          </div>
+          {showActivity && (
+            <div className="w-64 border-l bg-white p-4 transition-all">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold">Recent Activity</h2>
+                <button 
+                  onClick={() => setShowActivity(false)}
+                  className="text-gray-400 hover:text-gray-500"
+                >
+                  <span className="sr-only">Close activity panel</span>
+                  ×
+                </button>
+              </div>
+              <ScrollArea className="h-[calc(100vh-10rem)]">
+                {notifications.map((notification) => (
+                  <div key={notification.id} className="mb-4 p-3 bg-gray-50 rounded-lg">
+                    <p className="text-sm text-gray-600">{notification.message}</p>
+                    <span className="text-xs text-gray-400">{notification.time}</span>
+                  </div>
+                ))}
+              </ScrollArea>
+            </div>
+          )}
         </div>
       </div>
     </div>
