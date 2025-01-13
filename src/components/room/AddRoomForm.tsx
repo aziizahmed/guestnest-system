@@ -24,47 +24,46 @@ const formSchema = z.object({
   building: z.string().min(1, "Building is required"),
   floor: z.string().min(1, "Floor is required"),
   number: z.string().min(1, "Room number is required"),
-  type: z.string().min(1, "Room type is required"),
   capacity: z.string().min(1, "Capacity is required"),
   price: z.string().min(1, "Price is required"),
   status: z.enum(["available", "occupied", "maintenance"]),
-  currentOccupancy: z.string().default("0"),
 });
 
 interface AddRoomFormProps {
   onSubmit: (data: Room) => void;
-  preferredType?: string;
+  initialData?: Partial<Room>;
+  isEditing?: boolean;
 }
 
-export function AddRoomForm({ onSubmit, preferredType }: AddRoomFormProps) {
+export function AddRoomForm({ onSubmit, initialData, isEditing = false }: AddRoomFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      building: "",
-      floor: "",
-      number: "",
-      type: preferredType || "",
-      capacity: "",
-      price: "",
-      status: "available",
-      currentOccupancy: "0",
+      building: initialData?.building || "",
+      floor: initialData?.floor || "",
+      number: initialData?.number || "",
+      capacity: initialData?.capacity || "",
+      price: initialData?.price || "",
+      status: initialData?.status || "available",
     },
   });
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
     const newRoom: Room = {
-      id: Date.now().toString(),
+      id: initialData?.id || Date.now().toString(),
       building: values.building,
       floor: values.floor,
       number: values.number,
-      type: values.type,
       capacity: values.capacity,
       price: values.price,
       status: values.status,
-      currentOccupancy: Number(values.currentOccupancy),
+      type: "single", // Default type since we removed the selection
+      currentOccupancy: 0, // Default value since we removed the input
     };
     onSubmit(newRoom);
-    form.reset();
+    if (!isEditing) {
+      form.reset();
+    }
   };
 
   return (
@@ -133,33 +132,6 @@ export function AddRoomForm({ onSubmit, preferredType }: AddRoomFormProps) {
 
         <FormField
           control={form.control}
-          name="type"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Room Type</FormLabel>
-              <Select 
-                onValueChange={field.onChange} 
-                defaultValue={field.value}
-                disabled={preferredType && preferredType !== field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select room type" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="single">Single</SelectItem>
-                  <SelectItem value="double">Double</SelectItem>
-                  <SelectItem value="triple">Triple</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
           name="capacity"
           render={({ field }) => (
             <FormItem>
@@ -180,20 +152,6 @@ export function AddRoomForm({ onSubmit, preferredType }: AddRoomFormProps) {
               <FormLabel>Price per Month</FormLabel>
               <FormControl>
                 <Input type="number" placeholder="5000" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="currentOccupancy"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Current Occupancy</FormLabel>
-              <FormControl>
-                <Input type="number" placeholder="0" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -224,7 +182,7 @@ export function AddRoomForm({ onSubmit, preferredType }: AddRoomFormProps) {
         />
 
         <Button type="submit" className="w-full">
-          Add Room
+          {isEditing ? "Update Room" : "Add Room"}
         </Button>
       </form>
     </Form>

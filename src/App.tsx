@@ -10,6 +10,7 @@ import RoomDetails from "./pages/RoomDetails";
 import Hostels from "./pages/Hostels";
 import AddTenant from "./pages/AddTenant";
 import AddRoom from "./pages/AddRoom";
+import EditRoom from "./pages/EditRoom";
 import HostelDetails from "./pages/HostelDetails";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -27,6 +28,7 @@ function App() {
           <Route path="/rooms" element={<Rooms />} />
           <Route path="/rooms/add" element={<AddRoom />} />
           <Route path="/rooms/:id" element={<RoomDetails />} />
+          <Route path="/rooms/:id/edit" element={<EditRoom />} />
           <Route path="/expenses" element={<Expenses />} />
           <Route path="/payments" element={<Payments />} />
         </Route>

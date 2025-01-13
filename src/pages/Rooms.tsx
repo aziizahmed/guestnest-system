@@ -1,20 +1,13 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Room } from "@/types";
 import { RoomCard } from "@/components/room/RoomCard";
 import { RoomTable } from "@/components/room/RoomTable";
-import { AddRoomForm } from "@/components/room/AddRoomForm";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router-dom";
 import {
   Select,
   SelectContent,
@@ -31,17 +24,10 @@ const Rooms = () => {
   const [typeFilter, setTypeFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"grid" | "table">("table");
   const { toast } = useToast();
-
-  const handleAddRoom = (data: Room) => {
-    setRooms([...rooms, data]);
-    toast({
-      title: "Success",
-      description: "Room added successfully",
-    });
-  };
+  const navigate = useNavigate();
 
   const handleEditRoom = (room: Room) => {
-    console.log("Edit room:", room);
+    navigate(`/rooms/${room.id}/edit`);
   };
 
   const handleDeleteRoom = (room: Room) => {
@@ -81,20 +67,10 @@ const Rooms = () => {
               Table
             </Button>
           </div>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Room
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add New Room</DialogTitle>
-              </DialogHeader>
-              <AddRoomForm onSubmit={handleAddRoom} />
-            </DialogContent>
-          </Dialog>
+          <Button onClick={() => navigate("/rooms/add")}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Room
+          </Button>
         </div>
       </div>
 
