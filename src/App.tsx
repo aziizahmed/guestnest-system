@@ -8,6 +8,9 @@ import Payments from "./pages/Payments";
 import TenantDetails from "./pages/TenantDetails";
 import RoomDetails from "./pages/RoomDetails";
 import Hostels from "./pages/Hostels";
+import AddTenant from "./pages/AddTenant";
+import AddRoom from "./pages/AddRoom";
+import HostelDetails from "./pages/HostelDetails";
 import { Toaster } from "@/components/ui/toaster";
 
 function App() {
@@ -17,9 +20,12 @@ function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<Index />} />
           <Route path="/hostels" element={<Hostels />} />
+          <Route path="/hostels/:id" element={<HostelDetails />} />
           <Route path="/tenants" element={<Tenants />} />
+          <Route path="/tenants/add" element={<AddTenant />} />
           <Route path="/tenants/:id" element={<TenantDetails />} />
           <Route path="/rooms" element={<Rooms />} />
+          <Route path="/rooms/add" element={<AddRoom />} />
           <Route path="/rooms/:id" element={<RoomDetails />} />
           <Route path="/expenses" element={<Expenses />} />
           <Route path="/payments" element={<Payments />} />
