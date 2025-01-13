@@ -12,6 +12,7 @@ import AddTenant from "./pages/AddTenant";
 import AddRoom from "./pages/AddRoom";
 import EditRoom from "./pages/EditRoom";
 import HostelDetails from "./pages/HostelDetails";
+import Reports from "./pages/Reports";
 import { Toaster } from "@/components/ui/toaster";
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
           <Route path="/rooms/:id/edit" element={<EditRoom />} />
           <Route path="/expenses" element={<Expenses />} />
           <Route path="/payments" element={<Payments />} />
+          <Route path="/reports" element={<Reports />} />
         </Route>
       </Routes>
       <Toaster />

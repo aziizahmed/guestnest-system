@@ -1,8 +1,15 @@
-import { Users, Home, CreditCard, Wallet, BedDouble, Building } from "lucide-react";
+import { Users, Home, CreditCard, Wallet, BedDouble, Building, FileText, Bell } from "lucide-react";
 import { Link, useLocation, Outlet } from "react-router-dom";
+import { ScrollArea } from "./ui/scroll-area";
+import { useState } from "react";
 
 const Layout = () => {
   const location = useLocation();
+  const [notifications] = useState([
+    { id: 1, message: "New tenant registered", time: "2 mins ago" },
+    { id: 2, message: "Payment received from Room 302", time: "1 hour ago" },
+    { id: 3, message: "Maintenance request for Room 205", time: "3 hours ago" },
+  ]);
 
   const navigation = [
     { name: "Dashboard", href: "/", icon: Home },
@@ -11,6 +18,7 @@ const Layout = () => {
     { name: "Rooms", href: "/rooms", icon: BedDouble },
     { name: "Payments", href: "/payments", icon: CreditCard },
     { name: "Expenses", href: "/expenses", icon: Wallet },
+    { name: "Reports", href: "/reports", icon: FileText },
   ];
 
   return (
@@ -56,11 +64,31 @@ const Layout = () => {
                 {navigation.find((item) => item.href === location.pathname)?.name || "Dashboard"}
               </h1>
             </div>
+            <div className="flex items-center">
+              <div className="relative">
+                <button className="p-2 text-gray-400 hover:text-gray-500">
+                  <Bell className="h-6 w-6" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-        <main className="flex-1 overflow-y-auto bg-gray-50 p-6">
-          <Outlet />
-        </main>
+        <div className="flex">
+          <main className="flex-1 overflow-y-auto bg-gray-50 p-6">
+            <Outlet />
+          </main>
+          <div className="hidden lg:block w-64 border-l bg-white p-4">
+            <h2 className="text-lg font-semibold mb-4">Recent Activity</h2>
+            <ScrollArea className="h-[calc(100vh-10rem)]">
+              {notifications.map((notification) => (
+                <div key={notification.id} className="mb-4 p-3 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600">{notification.message}</p>
+                  <span className="text-xs text-gray-400">{notification.time}</span>
+                </div>
+              ))}
+            </ScrollArea>
+          </div>
+        </div>
       </div>
     </div>
   );
