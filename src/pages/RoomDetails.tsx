@@ -3,12 +3,23 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Users, IndianRupee, Building } from "lucide-react";
-import { dummyRooms } from "@/data/dummyData";
+import { dummyRooms, dummyTenants } from "@/data/dummyData";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
 const RoomDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const room = dummyRooms.find((r) => r.id === id);
+  
+  const tenants = dummyTenants.filter(tenant => tenant.roomNumber === room?.number);
+  
+  const occupancyData = [
+    { name: 'Occupied', value: room?.currentOccupancy || 0 },
+    { name: 'Available', value: room ? Number(room.capacity) - (room.currentOccupancy || 0) : 0 },
+  ];
+
+  const COLORS = ['#0088FE', '#FFBB28'];
 
   if (!room) {
     return (
@@ -33,6 +44,42 @@ const RoomDetails = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Occupancy Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Room Occupancy</CardTitle>
+          </CardHeader>
+          <CardContent className="h-[300px]">
+            <ChartContainer
+              config={{
+                occupied: { label: "Occupied", color: COLORS[0] },
+                available: { label: "Available", color: COLORS[1] },
+              }}
+            >
+              <PieChart>
+                <Pie
+                  data={occupancyData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {occupancyData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <ChartTooltip>
+                  <ChartTooltipContent />
+                </ChartTooltip>
+              </PieChart>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+
+        {/* Room Stats */}
         <Card>
           <CardHeader>
             <CardTitle>Room Information</CardTitle>
@@ -75,6 +122,7 @@ const RoomDetails = () => {
           </CardContent>
         </Card>
 
+        {/* Amenities */}
         <Card>
           <CardHeader>
             <CardTitle>Amenities</CardTitle>
@@ -90,31 +138,37 @@ const RoomDetails = () => {
           </CardContent>
         </Card>
 
-        {room.currentTenants && room.currentTenants.length > 0 && (
-          <Card className="md:col-span-2">
-            <CardHeader>
-              <CardTitle>Current Tenants</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {room.currentTenants.map((tenantId) => (
+        {/* Current Tenants */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Current Tenants</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {tenants.length > 0 ? (
+                tenants.map((tenant) => (
                   <div
-                    key={tenantId}
+                    key={tenant.id}
                     className="flex items-center justify-between p-4 border rounded-lg"
                   >
-                    <span className="font-medium">{tenantId}</span>
+                    <div className="space-y-1">
+                      <p className="font-medium">{tenant.name}</p>
+                      <p className="text-sm text-gray-500">{tenant.email}</p>
+                    </div>
                     <Button
                       variant="ghost"
-                      onClick={() => navigate(`/tenants/${tenantId}`)}
+                      onClick={() => navigate(`/tenants/${tenant.id}`)}
                     >
                       View Details
                     </Button>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                ))
+              ) : (
+                <p className="text-gray-500">No tenants currently assigned to this room.</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
