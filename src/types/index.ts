@@ -67,8 +67,15 @@ export interface Hostel {
   buildings: string[];
   amenities: string[];
   status: 'active' | 'maintenance';
+  occupiedRooms?: number;
   warden: {
     name: string;
     contact: string;
+    email?: string;
+  };
+  financials?: {
+    monthlyIncome: number;
+    monthlyExpenses: number;
+    pendingPayments: number;
   };
 }

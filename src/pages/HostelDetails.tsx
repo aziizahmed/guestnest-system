@@ -22,7 +22,8 @@ const HostelDetails = () => {
     totalFloors: 4,
     buildings: ["A", "B"],
     amenities: ["WiFi", "Gym", "Laundry"],
-    status: "active" as const,
+    status: "active",
+    occupiedRooms: 42,
     warden: {
       name: "Mr. Johnson",
       contact: "+1234567890",
@@ -36,8 +37,8 @@ const HostelDetails = () => {
   };
 
   const occupancyData = [
-    { name: 'Occupied', value: hostel.occupiedRooms, color: '#4CAF50' },
-    { name: 'Vacant', value: hostel.totalRooms - hostel.occupiedRooms, color: '#FFC107' }
+    { name: 'Occupied', value: hostel.occupiedRooms || 0, color: '#4CAF50' },
+    { name: 'Vacant', value: hostel.totalRooms - (hostel.occupiedRooms || 0), color: '#FFC107' }
   ];
 
   const handleEditHostel = (data: any) => {
@@ -114,20 +115,20 @@ const HostelDetails = () => {
               <div className="p-4 bg-green-50 rounded-lg">
                 <p className="text-sm text-gray-600">Monthly Income</p>
                 <p className="text-xl font-semibold text-green-600">
-                  ₹{hostel.financials.monthlyIncome.toLocaleString()}
+                  ₹{hostel.financials?.monthlyIncome.toLocaleString() || 0}
                 </p>
               </div>
               <div className="p-4 bg-red-50 rounded-lg">
                 <p className="text-sm text-gray-600">Monthly Expenses</p>
                 <p className="text-xl font-semibold text-red-600">
-                  ₹{hostel.financials.monthlyExpenses.toLocaleString()}
+                  ₹{hostel.financials?.monthlyExpenses.toLocaleString() || 0}
                 </p>
               </div>
             </div>
             <div className="p-4 bg-yellow-50 rounded-lg">
               <p className="text-sm text-gray-600">Pending Payments</p>
               <p className="text-xl font-semibold text-yellow-600">
-                ₹{hostel.financials.pendingPayments.toLocaleString()}
+                ₹{hostel.financials?.pendingPayments.toLocaleString() || 0}
               </p>
             </div>
           </CardContent>
@@ -179,12 +180,14 @@ const HostelDetails = () => {
                 {hostel.warden.contact}
               </span>
             </div>
-            <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">
-                {hostel.warden.email}
-              </span>
-            </div>
+            {hostel.warden.email && (
+              <div className="flex items-center gap-2">
+                <Mail className="h-4 w-4 text-gray-500" />
+                <span className="text-sm text-gray-600">
+                  {hostel.warden.email}
+                </span>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
