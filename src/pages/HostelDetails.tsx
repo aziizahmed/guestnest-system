@@ -7,22 +7,22 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { EditHostelForm } from "@/components/hostel/EditHostelForm";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { useState } from "react";
+import { Hostel } from "@/types";
 
 const HostelDetails = () => {
   const { id } = useParams();
   const [showEditDialog, setShowEditDialog] = useState(false);
   
   // This would typically come from an API call using the id
-  const hostel = {
+  const hostel: Hostel = {
     id: "1",
     name: "Sunshine PG",
     address: "123 Main Street",
     totalRooms: 50,
-    occupiedRooms: 42,
     totalFloors: 4,
     buildings: ["A", "B"],
     amenities: ["WiFi", "Gym", "Laundry"],
-    status: "active",
+    status: "active" as const,
     warden: {
       name: "Mr. Johnson",
       contact: "+1234567890",

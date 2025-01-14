@@ -4,8 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Users, IndianRupee, Building } from "lucide-react";
 import { dummyRooms, dummyTenants } from "@/data/dummyData";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 const RoomDetails = () => {
   const { id } = useParams();
@@ -50,12 +49,7 @@ const RoomDetails = () => {
             <CardTitle>Room Occupancy</CardTitle>
           </CardHeader>
           <CardContent className="h-[300px]">
-            <ChartContainer
-              config={{
-                occupied: { label: "Occupied", color: COLORS[0] },
-                available: { label: "Available", color: COLORS[1] },
-              }}
-            >
+            <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={occupancyData}
@@ -71,11 +65,18 @@ const RoomDetails = () => {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <ChartTooltip>
-                  <ChartTooltipContent />
-                </ChartTooltip>
+                <Tooltip content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    return (
+                      <div className="bg-white p-2 border rounded shadow">
+                        <p>{`${payload[0].name}: ${payload[0].value}`}</p>
+                      </div>
+                    );
+                  }
+                  return null;
+                }} />
               </PieChart>
-            </ChartContainer>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
 

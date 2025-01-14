@@ -10,11 +10,11 @@ import { Hostel } from "@/types";
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   address: z.string().min(5, "Address must be at least 5 characters"),
-  totalRooms: z.string().transform(Number),
-  totalFloors: z.string().transform(Number),
+  totalRooms: z.coerce.number().min(1, "Must have at least 1 room"),
+  totalFloors: z.coerce.number().min(1, "Must have at least 1 floor"),
   wardenName: z.string().min(2, "Warden name must be at least 2 characters"),
   wardenContact: z.string().min(10, "Contact number must be at least 10 characters"),
-  wardenEmail: z.string().email("Invalid email address"),
+  wardenEmail: z.string().email("Invalid email address").optional(),
 });
 
 interface EditHostelFormProps {
@@ -28,8 +28,8 @@ export function EditHostelForm({ hostel, onSubmit }: EditHostelFormProps) {
     defaultValues: {
       name: hostel.name,
       address: hostel.address,
-      totalRooms: String(hostel.totalRooms),
-      totalFloors: String(hostel.totalFloors),
+      totalRooms: hostel.totalRooms,
+      totalFloors: hostel.totalFloors,
       wardenName: hostel.warden.name,
       wardenContact: hostel.warden.contact,
       wardenEmail: hostel.warden.email || "",
