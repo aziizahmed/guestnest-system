@@ -3,22 +3,67 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Users, IndianRupee, Building } from "lucide-react";
-import { dummyRooms, dummyTenants } from "@/data/dummyData";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 const RoomDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const room = dummyRooms.find((r) => r.id === id);
-  
-  const tenants = dummyTenants.filter(tenant => tenant.roomNumber === room?.number);
-  
-  const occupancyData = [
-    { name: 'Occupied', value: room?.currentOccupancy || 0 },
-    { name: 'Available', value: room ? Number(room.capacity) - (room.currentOccupancy || 0) : 0 },
-  ];
+
+  const { data: room, isLoading: isLoadingRoom } = useQuery({
+    queryKey: ['room', id],
+    queryFn: async () => {
+      console.log('Fetching room details:', id);
+      const { data, error } = await supabase
+        .from('rooms')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching room:', error);
+        throw error;
+      }
+
+      console.log('Room details fetched:', data);
+      return data;
+    },
+  });
+
+  const { data: tenants = [], isLoading: isLoadingTenants } = useQuery({
+    queryKey: ['room-tenants', id],
+    queryFn: async () => {
+      console.log('Fetching room tenants:', id);
+      const { data, error } = await supabase
+        .from('tenants')
+        .select('*')
+        .eq('room_id', id);
+
+      if (error) {
+        console.error('Error fetching tenants:', error);
+        throw error;
+      }
+
+      console.log('Room tenants fetched:', data);
+      return data;
+    },
+  });
+
+  const occupancyData = room ? [
+    { name: 'Occupied', value: room.current_occupancy || 0 },
+    { name: 'Available', value: Number(room.capacity) - (room.current_occupancy || 0) },
+  ] : [];
 
   const COLORS = ['#0088FE', '#FFBB28'];
+
+  if (isLoadingRoom || isLoadingTenants) {
+    return (
+      <div className="flex items-center justify-center h-48">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
 
   if (!room) {
     return (
@@ -65,16 +110,7 @@ const RoomDetails = () => {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip content={({ active, payload }) => {
-                  if (active && payload && payload.length) {
-                    return (
-                      <div className="bg-white p-2 border rounded shadow">
-                        <p>{`${payload[0].name}: ${payload[0].value}`}</p>
-                      </div>
-                    );
-                  }
-                  return null;
-                }} />
+                <Tooltip />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
@@ -118,7 +154,7 @@ const RoomDetails = () => {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-gray-600">Occupancy</span>
-              <span className="font-medium">{room.currentOccupancy}/{room.capacity}</span>
+              <span className="font-medium">{room.current_occupancy}/{room.capacity}</span>
             </div>
           </CardContent>
         </Card>

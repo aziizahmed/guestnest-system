@@ -9,7 +9,166 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      hostels: {
+        Row: {
+          address: string
+          amenities: string[] | null
+          buildings: string[] | null
+          created_at: string
+          id: string
+          name: string
+          occupied_rooms: number | null
+          status: string | null
+          total_floors: number
+          total_rooms: number
+          updated_at: string
+          warden_contact: string
+          warden_email: string | null
+          warden_name: string
+        }
+        Insert: {
+          address: string
+          amenities?: string[] | null
+          buildings?: string[] | null
+          created_at?: string
+          id?: string
+          name: string
+          occupied_rooms?: number | null
+          status?: string | null
+          total_floors: number
+          total_rooms: number
+          updated_at?: string
+          warden_contact: string
+          warden_email?: string | null
+          warden_name: string
+        }
+        Update: {
+          address?: string
+          amenities?: string[] | null
+          buildings?: string[] | null
+          created_at?: string
+          id?: string
+          name?: string
+          occupied_rooms?: number | null
+          status?: string | null
+          total_floors?: number
+          total_rooms?: number
+          updated_at?: string
+          warden_contact?: string
+          warden_email?: string | null
+          warden_name?: string
+        }
+        Relationships: []
+      }
+      rooms: {
+        Row: {
+          amenities: string[] | null
+          building: string
+          capacity: string
+          created_at: string
+          current_occupancy: number | null
+          floor: string
+          hostel_id: string | null
+          id: string
+          number: string
+          price: string
+          status: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          amenities?: string[] | null
+          building: string
+          capacity: string
+          created_at?: string
+          current_occupancy?: number | null
+          floor: string
+          hostel_id?: string | null
+          id?: string
+          number: string
+          price: string
+          status?: string | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          amenities?: string[] | null
+          building?: string
+          capacity?: string
+          created_at?: string
+          current_occupancy?: number | null
+          floor?: string
+          hostel_id?: string | null
+          id?: string
+          number?: string
+          price?: string
+          status?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rooms_hostel_id_fkey"
+            columns: ["hostel_id"]
+            isOneToOne: false
+            referencedRelation: "hostels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenants: {
+        Row: {
+          created_at: string
+          documents: Json[] | null
+          email: string
+          emergency_contact: string
+          id: string
+          join_date: string
+          lease_end: string
+          name: string
+          phone: string
+          preferences: Json | null
+          room_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          documents?: Json[] | null
+          email: string
+          emergency_contact: string
+          id?: string
+          join_date: string
+          lease_end: string
+          name: string
+          phone: string
+          preferences?: Json | null
+          room_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          documents?: Json[] | null
+          email?: string
+          emergency_contact?: string
+          id?: string
+          join_date?: string
+          lease_end?: string
+          name?: string
+          phone?: string
+          preferences?: Json | null
+          room_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenants_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

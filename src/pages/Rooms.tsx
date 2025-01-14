@@ -15,10 +15,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { dummyRooms } from "@/data/dummyData";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 const Rooms = () => {
-  const [rooms, setRooms] = useState<Room[]>(dummyRooms);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -26,12 +26,58 @@ const Rooms = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleEditRoom = (room: Room) => {
+  // Fetch rooms data
+  const { data: rooms = [], isLoading } = useQuery({
+    queryKey: ['rooms'],
+    queryFn: async () => {
+      console.log('Fetching rooms data...');
+      const { data, error } = await supabase
+        .from('rooms')
+        .select(`
+          *,
+          hostel:hostels(name)
+        `);
+
+      if (error) {
+        console.error('Error fetching rooms:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch rooms data",
+          variant: "destructive",
+        });
+        throw error;
+      }
+
+      console.log('Rooms data fetched:', data);
+      return data as Room[];
+    },
+  });
+
+  const handleEditRoom = async (room: Room) => {
     navigate(`/rooms/${room.id}/edit`);
   };
 
-  const handleDeleteRoom = (room: Room) => {
-    console.log("Delete room:", room);
+  const handleDeleteRoom = async (room: Room) => {
+    try {
+      const { error } = await supabase
+        .from('rooms')
+        .delete()
+        .eq('id', room.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Room deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting room:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete room",
+        variant: "destructive",
+      });
+    }
   };
 
   const filteredRooms = rooms.filter((room) => {
@@ -45,6 +91,14 @@ const Rooms = () => {
 
     return matchesSearch && matchesStatus && matchesType;
   });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-48">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
