@@ -43,8 +43,14 @@ export function AddHostelForm({ onSubmit }: AddHostelFormProps) {
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
     const newHostel: Hostel = {
-      ...values,
       id: crypto.randomUUID(),
+      name: values.name,
+      address: values.address,
+      total_rooms: values.total_rooms,
+      total_floors: values.total_floors,
+      warden_name: values.warden_name,
+      warden_contact: values.warden_contact,
+      warden_email: values.warden_email,
       status: "active" as const,
       buildings: ["A"],
       amenities: ["WiFi"],
