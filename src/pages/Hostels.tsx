@@ -22,7 +22,16 @@ const Hostels = () => {
 
   const { data: hostels = [], isLoading, error } = useQuery({
     queryKey: ["hostels"],
-    queryFn: fetchHostels,
+    queryFn: async () => {
+      const { data, error } = await fetchHostels();
+      
+      if (error) throw error;
+      
+      return data.map(hostel => ({
+        ...hostel,
+        status: hostel.status as Hostel['status']
+      }));
+    }
   });
 
   const createHostelMutation = useMutation({

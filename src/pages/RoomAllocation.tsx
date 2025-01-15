@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import RoomAllocationForm from "@/components/RoomAllocationForm";
-import type { RoomAllocation as RoomAllocationType, Room, Tenant } from "@/types";
+import type { RoomAllocation, Room, Tenant } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 const RoomAllocation = () => {
-  const [allocations, setAllocations] = useState<RoomAllocationType[]>([]);
+  const [allocations, setAllocations] = useState<RoomAllocation[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ const RoomAllocation = () => {
 
     setAllocations(data.map(allocation => ({
       ...allocation,
-      status: allocation.status as "active" | "upcoming" | "expired"
+      status: allocation.status as RoomAllocation['status']
     })));
   };
 
@@ -58,7 +58,7 @@ const RoomAllocation = () => {
 
     setRooms(data.map(room => ({
       ...room,
-      status: room.status as "available" | "occupied" | "maintenance"
+      status: room.status as Room['status']
     })));
   };
 
@@ -85,7 +85,7 @@ const RoomAllocation = () => {
     })));
   };
 
-  const handleAllocation = async (allocation: Omit<RoomAllocationType, 'id' | 'created_at' | 'updated_at'>) => {
+  const handleAllocation = async (allocation: Omit<RoomAllocation, "id" | "created_at" | "updated_at">) => {
     const { data, error } = await supabase
       .from('room_allocations')
       .insert(allocation)
@@ -102,7 +102,7 @@ const RoomAllocation = () => {
       return;
     }
 
-    setAllocations([...allocations, data]);
+    setAllocations([...allocations, data as RoomAllocation]);
     toast({
       title: "Success",
       description: "Room allocated successfully",

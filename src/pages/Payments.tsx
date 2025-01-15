@@ -47,10 +47,9 @@ const Payments = () => {
       return;
     }
 
-    // Cast the status to the correct type
     setPayments(data.map(payment => ({
       ...payment,
-      status: payment.status as "paid" | "pending" | "overdue"
+      status: payment.status as Payment['status']
     })));
   };
 
@@ -76,7 +75,6 @@ const Payments = () => {
       return;
     }
 
-    // Parse preferences from JSON
     setTenants(data.map(tenant => ({
       ...tenant,
       preferences: typeof tenant.preferences === 'string' 
@@ -119,13 +117,9 @@ const Payments = () => {
     const tenant = tenants.find(t => t.id === payment.tenant_id);
     const paymentDate = new Date(payment.date);
     
-    // Filter by month
     const monthMatch = filters.month === "all" || paymentDate.getMonth() === Number(filters.month);
-    
-    // Filter by status
     const statusMatch = filters.status === "all" || payment.status === filters.status;
     
-    // Filter by search (tenant name or room number)
     const searchTerm = filters.search.toLowerCase();
     const searchMatch = !searchTerm || 
       tenant?.name.toLowerCase().includes(searchTerm) ||

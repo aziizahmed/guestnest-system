@@ -69,18 +69,6 @@ export interface Payment {
   updated_at: string;
 }
 
-export interface Expense {
-  id: string;
-  category: string;
-  sub_category: string;
-  amount: number;
-  date: string;
-  payment_mode: string;
-  description: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
 export interface RoomAllocation {
   id: string;
   room_id: string;
@@ -96,4 +84,16 @@ export interface PaymentSummary {
   totalPaid: number;
   totalPending: number;
   totalOverdue: number;
+}
+
+export interface Expense {
+  id: string;
+  category: string;
+  sub_category: string;
+  amount: number;
+  date: string;
+  payment_mode: string;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
 }
