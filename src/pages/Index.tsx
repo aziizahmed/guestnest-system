@@ -1,51 +1,73 @@
 import { Card } from "@/components/ui/card";
 import { Users, Home as HomeIcon, DollarSign, AlertCircle } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
-import { dummyRooms, dummyTenants } from "@/data/dummyData";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
-
-const stats = [
-  { name: "Total Tenants", value: "24", icon: Users, change: "+2", changeType: "increase" },
-  { name: "Available Rooms", value: "8", icon: HomeIcon, change: "-1", changeType: "decrease" },
-  { name: "Revenue (Monthly)", value: "₹82,000", icon: DollarSign, change: "+8%", changeType: "increase" },
-  { name: "Pending Requests", value: "3", icon: AlertCircle, change: "0", changeType: "neutral" },
-];
-
-// Sample data for the occupancy chart
-const occupancyData = [
-  { name: 'Block A', total: 10, occupied: 8 },
-  { name: 'Block B', total: 12, occupied: 6 },
-  { name: 'Block C', total: 8, occupied: 7 },
-];
-
-// Data for tenant distribution
-const tenantStats = [
-  { name: 'Active', value: dummyTenants.filter(t => t.leaseEnd).length || 0, color: '#4CAF50' },
-  { name: 'Pending', value: dummyTenants.filter(t => !t.leaseEnd).length || 0, color: '#FFC107' },
-];
-
-// Sample hostel revenue data
-const hostelRevenueData = [
-  { month: 'Jan', revenue: 75000 },
-  { month: 'Feb', revenue: 82000 },
-  { month: 'Mar', revenue: 88000 },
-  { month: 'Apr', revenue: 85000 },
-  { month: 'May', revenue: 92000 },
-  { month: 'Jun', revenue: 95000 },
-];
-
-// Sample hostel maintenance data
-const maintenanceData = [
-  { name: 'Block A', pending: 3, completed: 12 },
-  { name: 'Block B', pending: 2, completed: 8 },
-  { name: 'Block C', pending: 1, completed: 10 },
-];
+import { useQuery } from "@tanstack/react-query";
+import { fetchDashboardStats } from "@/lib/dashboard";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Index = () => {
   const [timeRange, setTimeRange] = useState("monthly");
   const [hostelFilter, setHostelFilter] = useState("all");
   
+  const { data: stats, isLoading } = useQuery({
+    queryKey: ['dashboard-stats'],
+    queryFn: fetchDashboardStats,
+  });
+
+  if (isLoading) {
+    return <div className="space-y-6">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {[1, 2, 3, 4].map((i) => (
+          <Card key={i} className="p-6">
+            <Skeleton className="h-12 w-12 rounded-lg" />
+            <Skeleton className="h-4 w-24 mt-4" />
+            <Skeleton className="h-8 w-32 mt-2" />
+          </Card>
+        ))}
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {[1, 2, 3, 4].map((i) => (
+          <Card key={i} className="p-6">
+            <Skeleton className="h-[300px] w-full" />
+          </Card>
+        ))}
+      </div>
+    </div>;
+  }
+
+  const dashboardStats = [
+    { 
+      name: "Total Tenants", 
+      value: stats?.totalTenants.toString() || "0", 
+      icon: Users, 
+      change: "+2", 
+      changeType: "increase" 
+    },
+    { 
+      name: "Available Rooms", 
+      value: stats?.availableRooms.toString() || "0", 
+      icon: HomeIcon, 
+      change: "-1", 
+      changeType: "decrease" 
+    },
+    { 
+      name: "Revenue (Monthly)", 
+      value: `₹${stats?.monthlyRevenue.toLocaleString() || "0"}`, 
+      icon: DollarSign, 
+      change: "+8%", 
+      changeType: "increase" 
+    },
+    { 
+      name: "Pending Requests", 
+      value: stats?.pendingRequests.toString() || "0", 
+      icon: AlertCircle, 
+      change: "0", 
+      changeType: "neutral" 
+    },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Filters */}
@@ -77,7 +99,7 @@ const Index = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
+        {dashboardStats.map((stat) => (
           <Card key={stat.name} className="p-6 hover:shadow-lg transition-shadow duration-200">
             <div className="flex items-center">
               <div className="p-2 bg-primary/10 rounded-lg">
@@ -112,7 +134,7 @@ const Index = () => {
           <h3 className="text-lg font-medium mb-4">Room Occupancy by Block</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={occupancyData}>
+              <BarChart data={stats?.occupancyData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
@@ -132,7 +154,7 @@ const Index = () => {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={tenantStats}
+                  data={stats?.tenantStats}
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
@@ -140,7 +162,7 @@ const Index = () => {
                   paddingAngle={5}
                   dataKey="value"
                 >
-                  {tenantStats.map((entry, index) => (
+                  {stats?.tenantStats.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
@@ -156,7 +178,7 @@ const Index = () => {
           <h3 className="text-lg font-medium mb-4">Revenue Trend</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={hostelRevenueData}>
+              <LineChart data={stats?.revenueData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
@@ -173,7 +195,7 @@ const Index = () => {
           <h3 className="text-lg font-medium mb-4">Maintenance Status</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={maintenanceData}>
+              <BarChart data={stats?.maintenanceData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
@@ -191,11 +213,7 @@ const Index = () => {
       <Card className="p-6">
         <h2 className="text-lg font-medium text-gray-900 mb-4">Recent Activity</h2>
         <div className="space-y-4">
-          {[
-            { text: "New tenant check-in: Room 204", time: "2 hours ago" },
-            { text: "Maintenance request: Room 108", time: "5 hours ago" },
-            { text: "Rent payment received: Room 302", time: "1 day ago" },
-          ].map((activity, i) => (
+          {stats?.recentActivity.map((activity, i) => (
             <div key={i} className="flex items-center justify-between py-3 border-b last:border-0">
               <span className="text-gray-600">{activity.text}</span>
               <span className="text-sm text-gray-400">{activity.time}</span>
