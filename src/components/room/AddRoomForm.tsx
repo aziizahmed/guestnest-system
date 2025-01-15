@@ -57,8 +57,12 @@ export function AddRoomForm({ onSubmit, initialData, isEditing = false }: AddRoo
       capacity: values.capacity,
       price: values.price,
       status: values.status,
-      type: "single", // Default type since we removed the selection
-      currentOccupancy: 0, // Default value since we removed the input
+      type: "single",
+      current_occupancy: 0,
+      amenities: [],
+      hostel_id: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
     onSubmit(newRoom);
     if (!isEditing) {
