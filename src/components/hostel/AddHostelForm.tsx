@@ -16,10 +16,10 @@ import * as z from "zod";
 const formSchema = z.object({
   name: z.string().min(1, "Hostel name is required"),
   address: z.string().min(1, "Address is required"),
-  totalRooms: z.string().min(1, "Total rooms is required"),
-  totalFloors: z.string().min(1, "Total floors is required"),
-  wardenName: z.string().min(1, "Warden name is required"),
-  wardenContact: z.string().min(1, "Warden contact is required"),
+  total_rooms: z.string().min(1, "Total rooms is required"),
+  total_floors: z.string().min(1, "Total floors is required"),
+  warden_name: z.string().min(1, "Warden name is required"),
+  warden_contact: z.string().min(1, "Warden contact is required"),
 });
 
 interface AddHostelFormProps {
@@ -32,10 +32,10 @@ export function AddHostelForm({ onSubmit }: AddHostelFormProps) {
     defaultValues: {
       name: "",
       address: "",
-      totalRooms: "",
-      totalFloors: "",
-      wardenName: "",
-      wardenContact: "",
+      total_rooms: "",
+      total_floors: "",
+      warden_name: "",
+      warden_contact: "",
     },
   });
 
@@ -44,15 +44,17 @@ export function AddHostelForm({ onSubmit }: AddHostelFormProps) {
       id: Date.now().toString(),
       name: values.name,
       address: values.address,
-      totalRooms: Number(values.totalRooms),
-      totalFloors: Number(values.totalFloors),
+      total_rooms: Number(values.total_rooms),
+      total_floors: Number(values.total_floors),
       buildings: ["A"], // Default value
       amenities: ["WiFi"], // Default value
       status: "active",
-      warden: {
-        name: values.wardenName,
-        contact: values.wardenContact,
-      },
+      warden_name: values.warden_name,
+      warden_contact: values.warden_contact,
+      warden_email: null,
+      occupied_rooms: 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
     onSubmit(newHostel);
     form.reset();
@@ -92,7 +94,7 @@ export function AddHostelForm({ onSubmit }: AddHostelFormProps) {
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="totalRooms"
+            name="total_rooms"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Total Rooms</FormLabel>
@@ -106,7 +108,7 @@ export function AddHostelForm({ onSubmit }: AddHostelFormProps) {
 
           <FormField
             control={form.control}
-            name="totalFloors"
+            name="total_floors"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Total Floors</FormLabel>
@@ -121,7 +123,7 @@ export function AddHostelForm({ onSubmit }: AddHostelFormProps) {
 
         <FormField
           control={form.control}
-          name="wardenName"
+          name="warden_name"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Warden Name</FormLabel>
@@ -135,7 +137,7 @@ export function AddHostelForm({ onSubmit }: AddHostelFormProps) {
 
         <FormField
           control={form.control}
-          name="wardenContact"
+          name="warden_contact"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Warden Contact</FormLabel>

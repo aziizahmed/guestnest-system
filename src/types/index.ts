@@ -1,3 +1,5 @@
+import { Json } from "@/integrations/supabase/types";
+
 export interface Tenant {
   id: string;
   name: string;
@@ -7,12 +9,12 @@ export interface Tenant {
   join_date: string;
   lease_end: string;
   room_id?: string | null;
-  preferences?: {
+  preferences: {
     roomType: string;
     maxRent: number;
     floor?: string;
   } | null;
-  documents?: any[] | null;
+  documents?: Json[] | null;
   created_at: string;
   updated_at: string;
   room?: {
@@ -31,9 +33,9 @@ export interface Room {
   status: 'available' | 'occupied' | 'maintenance';
   floor: string;
   building: string;
-  current_occupancy?: number | null;
-  amenities?: string[] | null;
-  hostel_id?: string | null;
+  current_occupancy: number | null;
+  amenities: string[] | null;
+  hostel_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -44,13 +46,13 @@ export interface Hostel {
   address: string;
   total_rooms: number;
   total_floors: number;
-  buildings?: string[] | null;
-  amenities?: string[] | null;
+  buildings: string[] | null;
+  amenities: string[] | null;
   status: 'active' | 'maintenance';
   warden_name: string;
   warden_contact: string;
-  warden_email?: string | null;
-  occupied_rooms?: number | null;
+  warden_email: string | null;
+  occupied_rooms: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -62,7 +64,7 @@ export interface Payment {
   date: string;
   status: 'paid' | 'pending' | 'overdue';
   payment_method: string;
-  notes?: string | null;
+  notes: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -74,7 +76,7 @@ export interface Expense {
   amount: number;
   date: string;
   payment_mode: string;
-  description?: string | null;
+  description: string | null;
   created_at: string;
   updated_at: string;
 }
