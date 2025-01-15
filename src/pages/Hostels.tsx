@@ -26,7 +26,7 @@ const Hostels = () => {
   });
 
   const createHostelMutation = useMutation({
-    mutationFn: createHostel,
+    mutationFn: (data: Omit<Hostel, "id" | "created_at" | "updated_at">) => createHostel(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["hostels"] });
       setIsAddDialogOpen(false);
@@ -45,7 +45,7 @@ const Hostels = () => {
     },
   });
 
-  const handleAddHostel = (data: Hostel) => {
+  const handleAddHostel = (data: Omit<Hostel, "id" | "created_at" | "updated_at">) => {
     createHostelMutation.mutate(data);
   };
 
