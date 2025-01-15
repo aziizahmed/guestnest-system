@@ -31,7 +31,7 @@ const formSchema = z.object({
 });
 
 interface PaymentFormProps {
-  onSubmit: (data: Payment) => void;
+  onSubmit: (data: Omit<Payment, "id" | "created_at" | "updated_at">) => void;
   tenants: Tenant[];
 }
 
@@ -50,17 +50,15 @@ export function PaymentForm({ onSubmit, tenants }: PaymentFormProps) {
   });
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    const payment: Payment = {
-      id: Date.now().toString(),
+    onSubmit({
       tenant_id: values.tenant_id,
       amount: values.amount,
       date: values.date,
       status: values.status,
       payment_method: values.payment_method,
       notes: values.notes || "",
-    };
+    });
     
-    onSubmit(payment);
     toast({
       title: "Success",
       description: "Payment recorded successfully",

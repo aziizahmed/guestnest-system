@@ -25,10 +25,10 @@ interface RoomAllocationFormProps {
 const RoomAllocationForm = ({ availableRooms, availableTenants, onSubmit }: RoomAllocationFormProps) => {
   const form = useForm<Omit<RoomAllocation, "id" | "status">>({
     defaultValues: {
-      roomId: "",
-      tenantId: "",
-      startDate: "",
-      duration: "",
+      room_id: "",
+      tenant_id: "",
+      start_date: "",
+      duration: 3,
     },
   });
 
@@ -37,7 +37,7 @@ const RoomAllocationForm = ({ availableRooms, availableTenants, onSubmit }: Room
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="roomId"
+          name="room_id"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Select Room</FormLabel>
@@ -60,7 +60,7 @@ const RoomAllocationForm = ({ availableRooms, availableTenants, onSubmit }: Room
         />
         <FormField
           control={form.control}
-          name="tenantId"
+          name="tenant_id"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Select Tenant</FormLabel>
@@ -83,7 +83,7 @@ const RoomAllocationForm = ({ availableRooms, availableTenants, onSubmit }: Room
         />
         <FormField
           control={form.control}
-          name="startDate"
+          name="start_date"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Start Date</FormLabel>
@@ -103,7 +103,10 @@ const RoomAllocationForm = ({ availableRooms, availableTenants, onSubmit }: Room
           render={({ field }) => (
             <FormItem>
               <FormLabel>Duration (months)</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select 
+                onValueChange={(value) => field.onChange(Number(value))} 
+                value={field.value.toString()}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select duration" />
