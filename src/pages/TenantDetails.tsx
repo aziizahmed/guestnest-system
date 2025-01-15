@@ -1,14 +1,39 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Mail, Phone, Calendar, Home, AlertCircle } from "lucide-react";
-import { dummyTenants } from "@/data/dummyData";
+import { Card } from "@/components/ui/card";
+import { ArrowLeft, Mail, Phone, Calendar } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { Tenant } from "@/types";
 
 const TenantDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const tenant = dummyTenants.find((t) => t.id === id);
+
+  const { data: tenant, isLoading } = useQuery({
+    queryKey: ['tenant', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tenants')
+        .select(`
+          *,
+          room:rooms(
+            number,
+            building,
+            floor
+          )
+        `)
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      return data as Tenant;
+    }
+  });
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   if (!tenant) {
     return (
@@ -33,11 +58,9 @@ const TenantDetails = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Personal Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
+          <div className="space-y-4">
             <div className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-gray-500" />
               <span>{tenant.email}</span>
@@ -46,61 +69,50 @@ const TenantDetails = () => {
               <Phone className="h-4 w-4 text-gray-500" />
               <span>{tenant.phone}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 text-gray-500" />
-              <span>Emergency Contact: {tenant.emergencyContact}</span>
+            <div>
+              <p className="text-sm text-gray-600">Emergency Contact</p>
+              <p>{tenant.emergency_contact}</p>
             </div>
-          </CardContent>
+          </div>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Lease Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Lease Information</h3>
+          <div className="space-y-4">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-gray-500" />
-              <span>Join Date: {tenant.joinDate}</span>
+              <span>Join Date: {new Date(tenant.join_date).toLocaleDateString()}</span>
             </div>
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-gray-500" />
-              <span>Lease End: {tenant.leaseEnd}</span>
+              <span>Lease End: {new Date(tenant.lease_end).toLocaleDateString()}</span>
             </div>
-            {tenant.roomNumber && (
-              <div className="flex items-center gap-2">
-                <Home className="h-4 w-4 text-gray-500" />
-                <span>Room: {tenant.roomNumber}</span>
-                <Button
-                  variant="ghost"
-                  className="ml-2"
-                  onClick={() => navigate(`/rooms/${tenant.roomNumber}`)}
-                >
-                  View Room
-                </Button>
-              </div>
-            )}
-          </CardContent>
+            <div>
+              <p className="text-sm text-gray-600">Room</p>
+              <p>{tenant.room ? `${tenant.room.number} (${tenant.room.building} - Floor ${tenant.room.floor})` : 'Not assigned'}</p>
+            </div>
+          </div>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Preferences</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Room Type</span>
-              <span className="font-medium">{tenant.preferences?.roomType}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Max Rent</span>
-              <span className="font-medium">₹{tenant.preferences?.maxRent}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Preferred Floor</span>
-              <span className="font-medium">{tenant.preferences?.floor}</span>
-            </div>
-          </CardContent>
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Preferences</h3>
+          <div className="space-y-2">
+            <p>Room Type: {tenant.preferences.roomType}</p>
+            <p>Max Rent: ₹{tenant.preferences.maxRent}</p>
+            {tenant.preferences.floor && <p>Preferred Floor: {tenant.preferences.floor}</p>}
+          </div>
         </Card>
+
+        {tenant.room && (
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold mb-4">Current Room</h3>
+            <div className="space-y-2">
+              <p>Room Number: {tenant.room.number}</p>
+              <p>Building: {tenant.room.building}</p>
+              <p>Floor: {tenant.room.floor}</p>
+            </div>
+          </Card>
+        )}
       </div>
     </div>
   );

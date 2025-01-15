@@ -33,7 +33,7 @@ export interface Room {
   status: 'available' | 'occupied' | 'maintenance';
   floor: string;
   building: string;
-  current_occupancy: number;
+  current_occupancy: number | null;
   amenities: string[] | null;
   hostel_id: string | null;
   created_at: string;
@@ -52,7 +52,7 @@ export interface Hostel {
   warden_name: string;
   warden_contact: string;
   warden_email: string | null;
-  occupied_rooms: number;
+  occupied_rooms: number | null;
   created_at: string;
   updated_at: string;
 }
