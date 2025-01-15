@@ -21,7 +21,7 @@ export async function createHostel(hostel: Omit<Hostel, "id">) {
   console.log("Creating hostel:", hostel);
   const { data, error } = await supabase
     .from("hostels")
-    .insert([hostel])
+    .insert(hostel)
     .select()
     .single();
   
@@ -90,11 +90,11 @@ export async function fetchTenants() {
   return data;
 }
 
-export async function createTenant(tenant: Omit<Tenant, "id">) {
+export async function createTenant(tenant: Omit<Tenant, "id" | "room">) {
   console.log("Creating tenant:", tenant);
   const { data, error } = await supabase
     .from("tenants")
-    .insert([tenant])
+    .insert(tenant)
     .select()
     .single();
   
@@ -107,7 +107,7 @@ export async function createTenant(tenant: Omit<Tenant, "id">) {
   return data;
 }
 
-export async function updateTenant(id: string, tenant: Partial<Tenant>) {
+export async function updateTenant(id: string, tenant: Partial<Omit<Tenant, "room">>) {
   console.log("Updating tenant:", id, tenant);
   const { data, error } = await supabase
     .from("tenants")

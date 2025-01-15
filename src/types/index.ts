@@ -3,10 +3,10 @@ export interface Tenant {
   name: string;
   email: string;
   phone: string;
-  emergencyContact: string;
-  joinDate: string;
-  leaseEnd: string;
-  roomNumber?: string;
+  emergency_contact: string; // Changed from emergencyContact
+  join_date: string; // Changed from joinDate
+  lease_end: string; // Changed from leaseEnd
+  room_id?: string;
   preferences?: {
     roomType: string;
     maxRent: number;
@@ -17,6 +17,11 @@ export interface Tenant {
     type: string;
     url: string;
   }[];
+  room?: {
+    number: string;
+    building: string;
+    floor: string;
+  };
 }
 
 export interface Room {
@@ -28,27 +33,33 @@ export interface Room {
   status: "available" | "occupied" | "maintenance";
   floor: string;
   building?: string;
-  currentOccupancy?: number;
+  current_occupancy?: number;
   amenities?: string[];
-  currentTenants?: string[];
+  hostel_id?: string;
 }
 
-export interface RoomAllocation {
+export interface Hostel {
   id: string;
-  roomId: string;
-  tenantId: string;
-  startDate: string;
-  duration: string;
-  status: "active" | "upcoming" | "ended";
+  name: string;
+  address: string;
+  total_rooms: number; // Changed from totalRooms
+  total_floors: number; // Changed from totalFloors
+  buildings: string[];
+  amenities: string[];
+  status: 'active' | 'maintenance';
+  occupied_rooms?: number;
+  warden_name: string; // Changed from nested warden object
+  warden_contact: string;
+  warden_email?: string;
 }
 
 export interface Payment {
   id: string;
-  tenantId: string;
+  tenant_id: string;
   amount: number;
   date: string;
   status: 'paid' | 'pending' | 'overdue';
-  paymentMethod: 'cash' | 'bank_transfer' | 'upi';
+  payment_method: string;
   notes?: string;
 }
 
@@ -56,26 +67,4 @@ export interface PaymentSummary {
   totalPaid: number;
   totalPending: number;
   totalOverdue: number;
-}
-
-export interface Hostel {
-  id: string;
-  name: string;
-  address: string;
-  totalRooms: number;
-  totalFloors: number;
-  buildings: string[];
-  amenities: string[];
-  status: 'active' | 'maintenance';
-  occupiedRooms?: number;
-  warden: {
-    name: string;
-    contact: string;
-    email?: string;
-  };
-  financials?: {
-    monthlyIncome: number;
-    monthlyExpenses: number;
-    pendingPayments: number;
-  };
 }
