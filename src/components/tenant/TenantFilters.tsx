@@ -6,6 +6,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 interface TenantFiltersProps {
   onFilterChange: (filters: TenantFilters) => void;
@@ -18,6 +20,27 @@ export interface TenantFilters {
 }
 
 export function TenantFilters({ onFilterChange }: TenantFiltersProps) {
+  // Fetch unique room types
+  const { data: roomTypes = [] } = useQuery({
+    queryKey: ['room-types'],
+    queryFn: async () => {
+      console.log('Fetching unique room types...');
+      const { data, error } = await supabase
+        .from('rooms')
+        .select('type')
+        .eq('type', 'type') // This creates a GROUP BY
+        .order('type');
+
+      if (error) {
+        console.error('Error fetching room types:', error);
+        throw error;
+      }
+
+      console.log('Fetched room types:', data);
+      return [...new Set(data.map(item => item.type))];
+    },
+  });
+
   const handleFilterChange = (key: keyof TenantFilters, value: string) => {
     onFilterChange({ status: "all", search: "", roomType: "all", [key]: value });
   };
@@ -56,9 +79,11 @@ export function TenantFilters({ onFilterChange }: TenantFiltersProps) {
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Types</SelectItem>
-          <SelectItem value="single">Single</SelectItem>
-          <SelectItem value="double">Double</SelectItem>
-          <SelectItem value="suite">Suite</SelectItem>
+          {roomTypes.map((type) => (
+            <SelectItem key={type} value={type}>
+              {type.charAt(0).toUpperCase() + type.slice(1)}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </div>

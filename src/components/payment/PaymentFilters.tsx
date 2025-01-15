@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -7,6 +7,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 interface PaymentFiltersProps {
   onFilterChange: (filters: PaymentFilters) => void;
@@ -23,6 +25,27 @@ export function PaymentFilters({ onFilterChange }: PaymentFiltersProps) {
     month: "all",
     status: "all",
     search: "",
+  });
+
+  // Fetch unique payment statuses
+  const { data: paymentStatuses = [] } = useQuery({
+    queryKey: ['payment-statuses'],
+    queryFn: async () => {
+      console.log('Fetching unique payment statuses...');
+      const { data, error } = await supabase
+        .from('payments')
+        .select('status')
+        .eq('status', 'status') // This creates a GROUP BY
+        .order('status');
+
+      if (error) {
+        console.error('Error fetching payment statuses:', error);
+        throw error;
+      }
+
+      console.log('Fetched payment statuses:', data);
+      return [...new Set(data.map(item => item.status))];
+    },
   });
 
   const handleFilterChange = (key: keyof PaymentFilters, value: string) => {
@@ -79,9 +102,11 @@ export function PaymentFilters({ onFilterChange }: PaymentFiltersProps) {
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Status</SelectItem>
-          <SelectItem value="paid">Paid</SelectItem>
-          <SelectItem value="pending">Pending</SelectItem>
-          <SelectItem value="overdue">Overdue</SelectItem>
+          {paymentStatuses.map((status) => (
+            <SelectItem key={status} value={status}>
+              {status.charAt(0).toUpperCase() + status.slice(1)}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </div>
