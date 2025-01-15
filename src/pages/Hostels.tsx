@@ -26,7 +26,14 @@ const Hostels = () => {
   });
 
   const createHostelMutation = useMutation({
-    mutationFn: (data: Omit<Hostel, "id" | "created_at" | "updated_at">) => createHostel(data),
+    mutationFn: (data: Omit<Hostel, "id" | "created_at" | "updated_at">) => {
+      // Ensure status is typed correctly
+      const hostelData = {
+        ...data,
+        status: data.status as "active" | "maintenance",
+      };
+      return createHostel(hostelData);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["hostels"] });
       setIsAddDialogOpen(false);

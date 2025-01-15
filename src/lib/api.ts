@@ -17,7 +17,7 @@ export async function fetchHostels() {
   return data;
 }
 
-export async function createHostel(hostel: Omit<Hostel, "id">) {
+export async function createHostel(hostel: Omit<Hostel, "id" | "created_at" | "updated_at">) {
   console.log("Creating hostel:", hostel);
   const { data, error } = await supabase
     .from("hostels")
