@@ -8,12 +8,12 @@ interface RoomCardProps {
 }
 
 export function RoomCard({ room }: RoomCardProps) {
-  const getStatusColor = (status: Room["status"], currentOccupancy?: number, capacity?: string) => {
+  const getStatusColor = (status: Room["status"], current_occupancy?: number, capacity?: string) => {
     if (status === "maintenance") return "bg-yellow-100 text-yellow-800";
     
     if (status === "available") {
-      if (!currentOccupancy || !capacity) return "bg-green-100 text-green-800";
-      const occupancyRate = (Number(currentOccupancy) / Number(capacity)) * 100;
+      if (!current_occupancy || !capacity) return "bg-green-100 text-green-800";
+      const occupancyRate = (Number(current_occupancy) / Number(capacity)) * 100;
       if (occupancyRate === 0) return "bg-green-100 text-green-800";
       if (occupancyRate < 100) return "bg-blue-100 text-blue-800";
       return "bg-red-100 text-red-800";
@@ -22,11 +22,11 @@ export function RoomCard({ room }: RoomCardProps) {
     return "bg-red-100 text-red-800";
   };
 
-  const getOccupancyLabel = (status: Room["status"], currentOccupancy?: number, capacity?: string) => {
+  const getOccupancyLabel = (status: Room["status"], current_occupancy?: number, capacity?: string) => {
     if (status === "maintenance") return "Under Maintenance";
     if (status === "available") {
-      if (!currentOccupancy || !capacity) return "Available";
-      const occupancyRate = (Number(currentOccupancy) / Number(capacity)) * 100;
+      if (!current_occupancy || !capacity) return "Available";
+      const occupancyRate = (Number(current_occupancy) / Number(capacity)) * 100;
       if (occupancyRate === 0) return "Empty";
       if (occupancyRate < 100) return "Partially Occupied";
       return "Full";
@@ -39,9 +39,9 @@ export function RoomCard({ room }: RoomCardProps) {
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-xl font-bold">Room {room.number}</CardTitle>
         <Badge 
-          className={getStatusColor(room.status, Number(room.currentOccupancy), room.capacity)}
+          className={getStatusColor(room.status, room.current_occupancy, room.capacity)}
         >
-          {getOccupancyLabel(room.status, Number(room.currentOccupancy), room.capacity)}
+          {getOccupancyLabel(room.status, room.current_occupancy, room.capacity)}
         </Badge>
       </CardHeader>
       <CardContent className="space-y-2">
@@ -59,7 +59,7 @@ export function RoomCard({ room }: RoomCardProps) {
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <Users className="h-4 w-4" />
-          Occupancy: {room.currentOccupancy}/{room.capacity}
+          Occupancy: {room.current_occupancy}/{room.capacity}
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <IndianRupee className="h-4 w-4" />

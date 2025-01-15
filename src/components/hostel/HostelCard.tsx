@@ -26,23 +26,23 @@ export function HostelCard({ hostel }: HostelCardProps) {
         <div className="flex items-center gap-2">
           <Building className="h-4 w-4 text-gray-500" />
           <span className="text-sm text-gray-600">
-            {hostel.buildings.length} Buildings
+            {hostel.buildings?.length || 0} Buildings
           </span>
         </div>
         <div className="flex items-center gap-2">
           <Home className="h-4 w-4 text-gray-500" />
           <span className="text-sm text-gray-600">
-            {hostel.totalRooms} Rooms • {hostel.totalFloors} Floors
+            {hostel.total_rooms} Rooms • {hostel.total_floors} Floors
           </span>
         </div>
         <div className="flex items-center gap-2">
           <Users className="h-4 w-4 text-gray-500" />
           <span className="text-sm text-gray-600">
-            Warden: {hostel.warden.name}
+            Warden: {hostel.warden_name}
           </span>
         </div>
         <div className="flex flex-wrap gap-2 mt-4">
-          {hostel.amenities.map((amenity, index) => (
+          {hostel.amenities?.map((amenity, index) => (
             <Badge key={index} variant="outline">
               {amenity}
             </Badge>
