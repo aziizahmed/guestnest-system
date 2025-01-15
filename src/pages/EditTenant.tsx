@@ -15,9 +15,9 @@ const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email address"),
   phone: z.string().min(1, "Phone number is required"),
-  emergencyContact: z.string().min(1, "Emergency contact is required"),
-  joinDate: z.string().min(1, "Join date is required"),
-  leaseEnd: z.string().min(1, "Lease end date is required"),
+  emergency_contact: z.string().min(1, "Emergency contact is required"),
+  join_date: z.string().min(1, "Join date is required"),
+  lease_end: z.string().min(1, "Lease end date is required"),
 });
 
 const EditTenant = () => {
@@ -25,7 +25,6 @@ const EditTenant = () => {
   const { id } = useParams();
   const { toast } = useToast();
 
-  // In a real app, you would fetch the tenant data from an API
   const tenant = dummyTenants.find(t => t.id === id);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -34,9 +33,9 @@ const EditTenant = () => {
       name: tenant?.name || "",
       email: tenant?.email || "",
       phone: tenant?.phone || "",
-      emergencyContact: tenant?.emergencyContact || "",
-      joinDate: tenant?.joinDate || "",
-      leaseEnd: tenant?.leaseEnd || "",
+      emergency_contact: tenant?.emergency_contact || "",
+      join_date: tenant?.join_date || "",
+      lease_end: tenant?.lease_end || "",
     },
   });
 

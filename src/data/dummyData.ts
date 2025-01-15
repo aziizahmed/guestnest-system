@@ -1,4 +1,4 @@
-import { Room, Tenant } from "@/types";
+import { Room, Tenant, Hostel } from "@/types";
 
 export const dummyRooms: Room[] = [
   {
@@ -110,6 +110,41 @@ export const dummyTenants: Tenant[] = [
       floor: "2"
     },
     documents: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  }
+];
+
+export const dummyHostels: Hostel[] = [
+  {
+    id: "H1",
+    name: "Sunshine Hostel",
+    address: "123 Main Street",
+    total_rooms: 50,
+    total_floors: 4,
+    buildings: ["A", "B"],
+    amenities: ["WiFi", "Gym", "Laundry"],
+    status: "active",
+    warden_name: "John Smith",
+    warden_contact: "+1234567890",
+    warden_email: "john@example.com",
+    occupied_rooms: 35,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: "H2",
+    name: "Moonlight Hostel",
+    address: "456 Park Avenue",
+    total_rooms: 30,
+    total_floors: 3,
+    buildings: ["A"],
+    amenities: ["WiFi", "Study Room"],
+    status: "maintenance",
+    warden_name: "Jane Doe",
+    warden_contact: "+1234567891",
+    warden_email: "jane@example.com",
+    occupied_rooms: 0,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   }
