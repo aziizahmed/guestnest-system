@@ -10,9 +10,11 @@ export const dummyRooms: Room[] = [
     status: "available",
     floor: "1",
     building: "A",
-    currentOccupancy: 0,
+    current_occupancy: 0,
     amenities: ["AC", "Attached Bathroom", "Study Table"],
-    currentTenants: []
+    hostel_id: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   },
   {
     id: "102",
@@ -23,9 +25,11 @@ export const dummyRooms: Room[] = [
     status: "occupied",
     floor: "1",
     building: "A",
-    currentOccupancy: 2,
+    current_occupancy: 2,
     amenities: ["AC", "Attached Bathroom", "Study Table", "Balcony"],
-    currentTenants: ["T1", "T2"]
+    hostel_id: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   },
   {
     id: "201",
@@ -36,9 +40,11 @@ export const dummyRooms: Room[] = [
     status: "maintenance",
     floor: "2",
     building: "A",
-    currentOccupancy: 0,
+    current_occupancy: 0,
     amenities: ["AC", "Shared Bathroom", "Study Table"],
-    currentTenants: []
+    hostel_id: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   }
 ];
 
@@ -48,13 +54,21 @@ export const dummyTenants: Tenant[] = [
     name: "John Doe",
     email: "john@example.com",
     phone: "+1234567890",
-    emergencyContact: "+1987654321",
-    joinDate: "2024-01-15",
-    leaseEnd: "2024-12-31",
-    roomNumber: "102",
+    emergency_contact: "+1987654321",
+    join_date: "2024-01-15",
+    lease_end: "2024-12-31",
+    room_id: "102",
     preferences: {
       roomType: "single",
       maxRent: 6000,
+      floor: "1"
+    },
+    documents: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    room: {
+      number: "102",
+      building: "A",
       floor: "1"
     }
   },
@@ -63,13 +77,21 @@ export const dummyTenants: Tenant[] = [
     name: "Jane Smith",
     email: "jane@example.com",
     phone: "+1234567891",
-    emergencyContact: "+1987654322",
-    joinDate: "2024-02-01",
-    leaseEnd: "2024-12-31",
-    roomNumber: "102",
+    emergency_contact: "+1987654322",
+    join_date: "2024-02-01",
+    lease_end: "2024-12-31",
+    room_id: "102",
     preferences: {
       roomType: "double",
       maxRent: 8000,
+      floor: "1"
+    },
+    documents: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    room: {
+      number: "102",
+      building: "A",
       floor: "1"
     }
   },
@@ -78,13 +100,17 @@ export const dummyTenants: Tenant[] = [
     name: "Mike Johnson",
     email: "mike@example.com",
     phone: "+1234567892",
-    emergencyContact: "+1987654323",
-    joinDate: "2024-02-15",
-    leaseEnd: "2024-12-31",
+    emergency_contact: "+1987654323",
+    join_date: "2024-02-15",
+    lease_end: "2024-12-31",
+    room_id: null,
     preferences: {
       roomType: "single",
       maxRent: 5500,
       floor: "2"
-    }
+    },
+    documents: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   }
 ];
