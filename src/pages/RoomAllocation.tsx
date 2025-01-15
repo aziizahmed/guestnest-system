@@ -2,13 +2,13 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { RoomAllocationForm } from "@/components/RoomAllocationForm";
-import { RoomAllocation, Room, Tenant } from "@/types";
+import RoomAllocationForm from "@/components/RoomAllocationForm";
+import type { RoomAllocation as RoomAllocationType, Room, Tenant } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 const RoomAllocation = () => {
-  const [allocations, setAllocations] = useState<RoomAllocation[]>([]);
+  const [allocations, setAllocations] = useState<RoomAllocationType[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const navigate = useNavigate();
@@ -35,7 +35,10 @@ const RoomAllocation = () => {
       return;
     }
 
-    setAllocations(data);
+    setAllocations(data.map(allocation => ({
+      ...allocation,
+      status: allocation.status as "active" | "upcoming" | "expired"
+    })));
   };
 
   const fetchRooms = async () => {
@@ -53,7 +56,10 @@ const RoomAllocation = () => {
       return;
     }
 
-    setRooms(data);
+    setRooms(data.map(room => ({
+      ...room,
+      status: room.status as "available" | "occupied" | "maintenance"
+    })));
   };
 
   const fetchTenants = async () => {
@@ -71,38 +77,36 @@ const RoomAllocation = () => {
       return;
     }
 
-    setTenants(data);
+    setTenants(data.map(tenant => ({
+      ...tenant,
+      preferences: typeof tenant.preferences === 'string'
+        ? JSON.parse(tenant.preferences)
+        : tenant.preferences
+    })));
   };
 
-  const handleAllocation = async (allocation: Omit<RoomAllocation, 'id'>) => {
-    try {
-      const { data, error } = await supabase
-        .from('room_allocations')
-        .insert({
-          room_id: allocation.room_id,
-          tenant_id: allocation.tenant_id,
-          start_date: allocation.start_date,
-          duration: allocation.duration,
-          status: allocation.status
-        })
-        .select()
-        .single();
+  const handleAllocation = async (allocation: Omit<RoomAllocationType, 'id' | 'created_at' | 'updated_at'>) => {
+    const { data, error } = await supabase
+      .from('room_allocations')
+      .insert(allocation)
+      .select()
+      .single();
 
-      if (error) throw error;
-
-      setAllocations([...allocations, data]);
-      toast({
-        title: "Success",
-        description: "Room allocated successfully",
-      });
-    } catch (error) {
+    if (error) {
       console.error('Error allocating room:', error);
       toast({
         title: "Error",
         description: "Failed to allocate room",
         variant: "destructive",
       });
+      return;
     }
+
+    setAllocations([...allocations, data]);
+    toast({
+      title: "Success",
+      description: "Room allocated successfully",
+    });
   };
 
   return (

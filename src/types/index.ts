@@ -30,7 +30,7 @@ export interface Room {
   type: string;
   capacity: string;
   price: string;
-  status: 'available' | 'occupied' | 'maintenance';
+  status: "available" | "occupied" | "maintenance";
   floor: string;
   building: string;
   current_occupancy: number | null;
@@ -62,7 +62,7 @@ export interface Payment {
   tenant_id: string;
   amount: number;
   date: string;
-  status: 'paid' | 'pending' | 'overdue';
+  status: "paid" | "pending" | "overdue";
   payment_method: string;
   notes: string | null;
   created_at: string;
@@ -87,7 +87,9 @@ export interface RoomAllocation {
   tenant_id: string;
   start_date: string;
   duration: number;
-  status: 'active' | 'upcoming' | 'expired';
+  status: "active" | "upcoming" | "expired";
+  created_at: string;
+  updated_at: string;
 }
 
 export interface PaymentSummary {

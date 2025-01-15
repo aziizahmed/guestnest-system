@@ -91,9 +91,19 @@ const Expenses = () => {
   };
 
   const onSubmit = async (data: ExpenseFormData) => {
+    // Ensure all required fields are present
+    const expenseData = {
+      category: data.category,
+      sub_category: data.sub_category,
+      amount: data.amount,
+      date: data.date,
+      payment_mode: data.payment_mode,
+      description: data.description || null
+    };
+
     const { error } = await supabase
       .from('expenses')
-      .insert(data);
+      .insert(expenseData);
 
     if (error) {
       console.error('Error adding expense:', error);

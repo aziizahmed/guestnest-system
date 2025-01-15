@@ -47,7 +47,11 @@ const Payments = () => {
       return;
     }
 
-    setPayments(data);
+    // Cast the status to the correct type
+    setPayments(data.map(payment => ({
+      ...payment,
+      status: payment.status as "paid" | "pending" | "overdue"
+    })));
   };
 
   const fetchTenants = async () => {
@@ -72,7 +76,13 @@ const Payments = () => {
       return;
     }
 
-    setTenants(data);
+    // Parse preferences from JSON
+    setTenants(data.map(tenant => ({
+      ...tenant,
+      preferences: typeof tenant.preferences === 'string' 
+        ? JSON.parse(tenant.preferences)
+        : tenant.preferences
+    })));
   };
 
   const handleAddPayment = async (payment: Omit<Payment, 'id'>) => {
