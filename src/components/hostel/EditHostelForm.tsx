@@ -10,11 +10,11 @@ import { Hostel } from "@/types";
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   address: z.string().min(5, "Address must be at least 5 characters"),
-  totalRooms: z.coerce.number().min(1, "Must have at least 1 room"),
-  totalFloors: z.coerce.number().min(1, "Must have at least 1 floor"),
-  wardenName: z.string().min(2, "Warden name must be at least 2 characters"),
-  wardenContact: z.string().min(10, "Contact number must be at least 10 characters"),
-  wardenEmail: z.string().email("Invalid email address").optional(),
+  total_rooms: z.coerce.number().min(1, "Must have at least 1 room"),
+  total_floors: z.coerce.number().min(1, "Must have at least 1 floor"),
+  warden_name: z.string().min(2, "Warden name must be at least 2 characters"),
+  warden_contact: z.string().min(10, "Contact number must be at least 10 characters"),
+  warden_email: z.string().email("Invalid email address").optional().nullable(),
 });
 
 interface EditHostelFormProps {
@@ -28,11 +28,11 @@ export function EditHostelForm({ hostel, onSubmit }: EditHostelFormProps) {
     defaultValues: {
       name: hostel.name,
       address: hostel.address,
-      totalRooms: hostel.totalRooms,
-      totalFloors: hostel.totalFloors,
-      wardenName: hostel.warden.name,
-      wardenContact: hostel.warden.contact,
-      wardenEmail: hostel.warden.email || "",
+      total_rooms: hostel.total_rooms,
+      total_floors: hostel.total_floors,
+      warden_name: hostel.warden_name,
+      warden_contact: hostel.warden_contact,
+      warden_email: hostel.warden_email || "",
     },
   });
 
@@ -70,7 +70,7 @@ export function EditHostelForm({ hostel, onSubmit }: EditHostelFormProps) {
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="totalRooms"
+            name="total_rooms"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Total Rooms</FormLabel>
@@ -84,7 +84,7 @@ export function EditHostelForm({ hostel, onSubmit }: EditHostelFormProps) {
 
           <FormField
             control={form.control}
-            name="totalFloors"
+            name="total_floors"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Total Floors</FormLabel>
@@ -99,7 +99,7 @@ export function EditHostelForm({ hostel, onSubmit }: EditHostelFormProps) {
 
         <FormField
           control={form.control}
-          name="wardenName"
+          name="warden_name"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Warden Name</FormLabel>
@@ -113,7 +113,7 @@ export function EditHostelForm({ hostel, onSubmit }: EditHostelFormProps) {
 
         <FormField
           control={form.control}
-          name="wardenContact"
+          name="warden_contact"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Warden Contact</FormLabel>
@@ -127,7 +127,7 @@ export function EditHostelForm({ hostel, onSubmit }: EditHostelFormProps) {
 
         <FormField
           control={form.control}
-          name="wardenEmail"
+          name="warden_email"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Warden Email</FormLabel>
