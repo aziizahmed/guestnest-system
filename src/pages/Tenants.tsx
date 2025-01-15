@@ -1,25 +1,64 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { TenantTable } from "@/components/tenant/TenantTable";
-import { TenantFilters, TenantFilters as TenantFiltersType } from "@/components/tenant/TenantFilters";
+import { TenantFilters } from "@/components/tenant/TenantFilters";
 import { useNavigate } from "react-router-dom";
-import { dummyTenants } from "@/data/dummyData";
 import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteTenant, fetchTenants } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
+import { Tenant } from "@/types";
 
 const Tenants = () => {
   const navigate = useNavigate();
-  const [filters, setFilters] = useState<TenantFiltersType>({
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [filters, setFilters] = useState({
     status: "all",
     search: "",
     roomType: "all",
   });
 
-  const handleFilterChange = (newFilters: TenantFiltersType) => {
+  const { data: tenants = [], isLoading, error } = useQuery({
+    queryKey: ["tenants"],
+    queryFn: fetchTenants,
+  });
+
+  const deleteTenantMutation = useMutation({
+    mutationFn: deleteTenant,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tenants"] });
+      toast({
+        title: "Success",
+        description: "Tenant deleted successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to delete tenant. Please try again.",
+        variant: "destructive",
+      });
+      console.error("Error deleting tenant:", error);
+    },
+  });
+
+  const handleFilterChange = (newFilters: typeof filters) => {
     setFilters(newFilters);
     console.log("Filters updated:", newFilters);
-    // Here you would typically filter the tenants based on the new filters
-    // For now, we're just logging the changes
   };
+
+  const handleDeleteTenant = (tenant: Tenant) => {
+    deleteTenantMutation.mutate(tenant.id);
+  };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error loading tenants. Please try again.</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -32,7 +71,10 @@ const Tenants = () => {
       </div>
 
       <TenantFilters onFilterChange={handleFilterChange} />
-      <TenantTable tenants={dummyTenants} />
+      <TenantTable 
+        tenants={tenants} 
+        onDelete={handleDeleteTenant}
+      />
     </div>
   );
 };

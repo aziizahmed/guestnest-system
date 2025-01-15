@@ -9,59 +9,59 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Card } from "@/components/ui/card";
 import { Hostel } from "@/types";
 import { AddHostelForm } from "@/components/hostel/AddHostelForm";
 import { HostelCard } from "@/components/hostel/HostelCard";
-
-const dummyHostels: Hostel[] = [
-  {
-    id: "1",
-    name: "Sunshine PG",
-    address: "123 Main Street",
-    totalRooms: 50,
-    totalFloors: 4,
-    buildings: ["A", "B"],
-    amenities: ["WiFi", "Gym", "Laundry"],
-    status: "active",
-    warden: {
-      name: "Mr. Johnson",
-      contact: "+1234567890"
-    }
-  },
-  {
-    id: "2",
-    name: "Green Valley Hostel",
-    address: "456 Park Road",
-    totalRooms: 75,
-    totalFloors: 5,
-    buildings: ["A", "B", "C"],
-    amenities: ["WiFi", "Cafeteria", "Library"],
-    status: "active",
-    warden: {
-      name: "Mrs. Smith",
-      contact: "+1234567891"
-    }
-  }
-];
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { createHostel, fetchHostels } from "@/lib/api";
 
 const Hostels = () => {
-  const [hostels, setHostels] = useState<Hostel[]>(dummyHostels);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: hostels = [], isLoading, error } = useQuery({
+    queryKey: ["hostels"],
+    queryFn: fetchHostels,
+  });
+
+  const createHostelMutation = useMutation({
+    mutationFn: createHostel,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["hostels"] });
+      setIsAddDialogOpen(false);
+      toast({
+        title: "Success",
+        description: "Hostel added successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to add hostel. Please try again.",
+        variant: "destructive",
+      });
+      console.error("Error adding hostel:", error);
+    },
+  });
 
   const handleAddHostel = (data: Hostel) => {
-    setHostels([...hostels, data]);
-    toast({
-      title: "Success",
-      description: "Hostel added successfully",
-    });
+    createHostelMutation.mutate(data);
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error loading hostels. Please try again.</div>;
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Hostels Overview</h2>
-        <Dialog>
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
