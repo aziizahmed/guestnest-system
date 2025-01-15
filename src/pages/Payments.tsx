@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PaymentsList } from "@/components/payment/PaymentsList";
 import { PaymentOverview } from "@/components/payment/PaymentOverview";
 import { PaymentForm } from "@/components/payment/PaymentForm";
@@ -13,60 +13,91 @@ import {
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { PaymentFilters, type PaymentFilters as PaymentFiltersType } from "@/components/payment/PaymentFilters";
-
-// Dummy data
-const dummyTenants: Tenant[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    email: "john@example.com",
-    phone: "1234567890",
-    emergencyContact: "9876543210",
-    joinDate: "2024-01-01",
-    leaseEnd: "2024-12-31",
-    roomNumber: "101"
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    email: "jane@example.com",
-    phone: "2345678901",
-    emergencyContact: "8765432109",
-    joinDate: "2024-01-15",
-    leaseEnd: "2024-12-31",
-    roomNumber: "102"
-  }
-];
-
-const dummyPayments: Payment[] = [
-  {
-    id: "1",
-    tenantId: "1",
-    amount: 15000,
-    date: "2024-01-05",
-    status: "paid",
-    paymentMethod: "upi",
-    notes: "January Rent"
-  },
-  {
-    id: "2",
-    tenantId: "2",
-    amount: 15000,
-    date: "2024-01-15",
-    status: "pending",
-    paymentMethod: "bank_transfer",
-    notes: "January Rent"
-  }
-];
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Payments = () => {
-  const [payments, setPayments] = useState<Payment[]>(dummyPayments);
-  const [tenants] = useState<Tenant[]>(dummyTenants);
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [tenants, setTenants] = useState<Tenant[]>([]);
   const [filters, setFilters] = useState<PaymentFiltersType>({
     month: "all",
     status: "all",
     search: "",
   });
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetchPayments();
+    fetchTenants();
+  }, []);
+
+  const fetchPayments = async () => {
+    const { data, error } = await supabase
+      .from('payments')
+      .select('*')
+      .order('date', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching payments:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch payments",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setPayments(data);
+  };
+
+  const fetchTenants = async () => {
+    const { data, error } = await supabase
+      .from('tenants')
+      .select(`
+        *,
+        room:rooms(
+          number,
+          building,
+          floor
+        )
+      `);
+
+    if (error) {
+      console.error('Error fetching tenants:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch tenants",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setTenants(data);
+  };
+
+  const handleAddPayment = async (payment: Omit<Payment, 'id'>) => {
+    const { data, error } = await supabase
+      .from('payments')
+      .insert(payment)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error adding payment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add payment",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setPayments([data, ...payments]);
+    toast({
+      title: "Success",
+      description: "Payment added successfully",
+    });
+  };
 
   const summary: PaymentSummary = {
     totalPaid: payments.filter(p => p.status === 'paid').reduce((acc, p) => acc + p.amount, 0),
@@ -74,12 +105,8 @@ const Payments = () => {
     totalOverdue: payments.filter(p => p.status === 'overdue').reduce((acc, p) => acc + p.amount, 0),
   };
 
-  const handleAddPayment = (payment: Payment) => {
-    setPayments([...payments, payment]);
-  };
-
   const filteredPayments = payments.filter(payment => {
-    const tenant = tenants.find(t => t.id === payment.tenantId);
+    const tenant = tenants.find(t => t.id === payment.tenant_id);
     const paymentDate = new Date(payment.date);
     
     // Filter by month
@@ -92,7 +119,7 @@ const Payments = () => {
     const searchTerm = filters.search.toLowerCase();
     const searchMatch = !searchTerm || 
       tenant?.name.toLowerCase().includes(searchTerm) ||
-      tenant?.roomNumber?.toLowerCase().includes(searchTerm);
+      tenant?.room?.number.toLowerCase().includes(searchTerm);
 
     return monthMatch && statusMatch && searchMatch;
   });

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -26,33 +26,86 @@ import {
 import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { Card } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
-interface ExpenseFormData {
+const expenseSchema = z.object({
+  category: z.string().min(1, "Category is required"),
+  sub_category: z.string().min(1, "Sub category is required"),
+  amount: z.number().min(0, "Amount must be positive"),
+  date: z.string().min(1, "Date is required"),
+  payment_mode: z.string().min(1, "Payment mode is required"),
+  description: z.string().optional(),
+});
+
+type ExpenseFormData = z.infer<typeof expenseSchema>;
+
+interface Expense {
+  id: string;
   category: string;
-  subCategory: string;
-  amount: string;
+  sub_category: string;
+  amount: number;
   date: string;
-  description: string;
-  paymentMode: string;
+  payment_mode: string;
+  description?: string;
 }
 
 const Expenses = () => {
-  const [expenses, setExpenses] = useState<ExpenseFormData[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const { toast } = useToast();
 
   const form = useForm<ExpenseFormData>({
+    resolver: zodResolver(expenseSchema),
     defaultValues: {
       category: "",
-      subCategory: "",
-      amount: "",
-      date: "",
+      sub_category: "",
+      amount: 0,
+      date: new Date().toISOString().split('T')[0],
+      payment_mode: "",
       description: "",
-      paymentMode: "",
     },
   });
 
-  const onSubmit = (data: ExpenseFormData) => {
-    setExpenses([...expenses, data]);
+  useEffect(() => {
+    fetchExpenses();
+  }, []);
+
+  const fetchExpenses = async () => {
+    const { data, error } = await supabase
+      .from('expenses')
+      .select('*')
+      .order('date', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching expenses:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch expenses",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setExpenses(data);
+  };
+
+  const onSubmit = async (data: ExpenseFormData) => {
+    const { error } = await supabase
+      .from('expenses')
+      .insert(data);
+
+    if (error) {
+      console.error('Error adding expense:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add expense",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    fetchExpenses();
     toast({
       title: "Success",
       description: "Expense added successfully",
@@ -118,7 +171,7 @@ const Expenses = () => {
                           {categories.map((category) => (
                             <SelectItem 
                               key={category.name} 
-                              value={category.name.toLowerCase().replace(/\s+/g, '_')}
+                              value={category.name.toLowerCase()}
                             >
                               {category.name}
                             </SelectItem>
@@ -131,7 +184,7 @@ const Expenses = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="subCategory"
+                  name="sub_category"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Sub Category</FormLabel>
@@ -145,12 +198,12 @@ const Expenses = () => {
                           {categories
                             .find(
                               (cat) =>
-                                cat.name.toLowerCase().replace(/\s+/g, '_') === form.watch("category")
+                                cat.name.toLowerCase() === form.watch("category")
                             )
                             ?.subCategories.map((sub) => (
                               <SelectItem 
                                 key={sub} 
-                                value={sub.toLowerCase().replace(/\s+/g, '_')}
+                                value={sub.toLowerCase()}
                               >
                                 {sub}
                               </SelectItem>
@@ -168,7 +221,12 @@ const Expenses = () => {
                     <FormItem>
                       <FormLabel>Amount (₹)</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="Enter amount" {...field} />
+                        <Input 
+                          type="number" 
+                          placeholder="Enter amount" 
+                          {...field}
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -189,7 +247,7 @@ const Expenses = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="paymentMode"
+                  name="payment_mode"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Payment Mode</FormLabel>
@@ -237,23 +295,25 @@ const Expenses = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {expenses.map((expense, index) => (
-          <Card key={index} className="p-6 space-y-4">
+        {expenses.map((expense) => (
+          <Card key={expense.id} className="p-6 space-y-4">
             <div className="flex justify-between items-start">
               <div>
                 <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-sm font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 capitalize">
                   {expense.category.replace(/_/g, ' ')}
                 </span>
                 <span className="ml-2 inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-sm font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10 capitalize">
-                  {expense.subCategory.replace(/_/g, ' ')}
+                  {expense.sub_category.replace(/_/g, ' ')}
                 </span>
               </div>
               <span className="text-lg font-semibold">₹{expense.amount}</span>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-gray-600">Date: {expense.date}</p>
-              <p className="text-sm text-gray-600">Payment: {expense.paymentMode.replace(/_/g, ' ')}</p>
-              <p className="text-sm text-gray-600">{expense.description}</p>
+              <p className="text-sm text-gray-600">Date: {new Date(expense.date).toLocaleDateString()}</p>
+              <p className="text-sm text-gray-600">Payment: {expense.payment_mode.replace(/_/g, ' ')}</p>
+              {expense.description && (
+                <p className="text-sm text-gray-600">{expense.description}</p>
+              )}
             </div>
           </Card>
         ))}

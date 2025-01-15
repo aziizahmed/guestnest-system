@@ -22,11 +22,11 @@ import { Payment, Tenant } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
-  tenantId: z.string().min(1, "Tenant is required"),
+  tenant_id: z.string().min(1, "Tenant is required"),
   amount: z.number().min(0, "Amount must be positive"),
   date: z.string().min(1, "Payment date is required"),
   status: z.enum(["paid", "pending", "overdue"]),
-  paymentMethod: z.enum(["cash", "bank_transfer", "upi"]),
+  payment_method: z.enum(["cash", "bank_transfer", "upi"]),
   notes: z.string().optional(),
 });
 
@@ -43,8 +43,8 @@ export function PaymentForm({ onSubmit, tenants }: PaymentFormProps) {
       amount: 0,
       status: "paid",
       date: new Date().toISOString().split('T')[0],
-      paymentMethod: "cash",
-      tenantId: tenants[0]?.id || "no_tenant",
+      payment_method: "cash",
+      tenant_id: tenants[0]?.id || "",
       notes: "",
     },
   });
@@ -52,11 +52,11 @@ export function PaymentForm({ onSubmit, tenants }: PaymentFormProps) {
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
     const payment: Payment = {
       id: Date.now().toString(),
-      tenantId: values.tenantId,
+      tenant_id: values.tenant_id,
       amount: values.amount,
       date: values.date,
       status: values.status,
-      paymentMethod: values.paymentMethod,
+      payment_method: values.payment_method,
       notes: values.notes || "",
     };
     
@@ -73,7 +73,7 @@ export function PaymentForm({ onSubmit, tenants }: PaymentFormProps) {
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="tenantId"
+          name="tenant_id"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Tenant</FormLabel>
@@ -86,7 +86,7 @@ export function PaymentForm({ onSubmit, tenants }: PaymentFormProps) {
                 <SelectContent>
                   {tenants.map((tenant) => (
                     <SelectItem key={tenant.id} value={tenant.id}>
-                      {tenant.name} - Room {tenant.roomNumber}
+                      {tenant.name} - Room {tenant.room?.number || 'Unassigned'}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -153,7 +153,7 @@ export function PaymentForm({ onSubmit, tenants }: PaymentFormProps) {
 
         <FormField
           control={form.control}
-          name="paymentMethod"
+          name="payment_method"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Payment Method</FormLabel>

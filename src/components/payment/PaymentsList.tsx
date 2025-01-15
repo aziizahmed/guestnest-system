@@ -49,7 +49,7 @@ export function PaymentsList({ payments, tenants }: PaymentsListProps) {
         <TableBody>
           {payments.map((payment) => (
             <TableRow key={payment.id}>
-              <TableCell>{getTenantName(payment.tenantId)}</TableCell>
+              <TableCell>{getTenantName(payment.tenant_id)}</TableCell>
               <TableCell>₹{payment.amount}</TableCell>
               <TableCell>{new Date(payment.date).toLocaleDateString()}</TableCell>
               <TableCell>
@@ -57,7 +57,7 @@ export function PaymentsList({ payments, tenants }: PaymentsListProps) {
                   {payment.status}
                 </Badge>
               </TableCell>
-              <TableCell>{payment.paymentMethod}</TableCell>
+              <TableCell>{payment.payment_method}</TableCell>
               <TableCell>{payment.notes}</TableCell>
             </TableRow>
           ))}
