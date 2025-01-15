@@ -46,8 +46,8 @@ export interface Hostel {
   address: string;
   total_rooms: number;
   total_floors: number;
-  buildings: string[] | null;
-  amenities: string[] | null;
+  buildings: string[];
+  amenities: string[];
   status: 'active' | 'maintenance';
   warden_name: string;
   warden_contact: string;
@@ -88,4 +88,10 @@ export interface RoomAllocation {
   start_date: string;
   duration: number;
   status: 'active' | 'upcoming' | 'expired';
+}
+
+export interface PaymentSummary {
+  totalPaid: number;
+  totalPending: number;
+  totalOverdue: number;
 }

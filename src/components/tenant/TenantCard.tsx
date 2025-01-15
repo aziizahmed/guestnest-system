@@ -26,11 +26,11 @@ export function TenantCard({ tenant }: TenantCardProps) {
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <AlertCircle className="h-4 w-4" />
-          {tenant.emergencyContact}
+          {tenant.emergency_contact}
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <Calendar className="h-4 w-4" />
-          Join Date: {tenant.joinDate}
+          Join Date: {tenant.join_date}
         </div>
         <div className="mt-4 pt-4 border-t">
           <p className="text-sm font-medium">Preferences</p>
