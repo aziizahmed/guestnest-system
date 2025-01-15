@@ -42,31 +42,33 @@ const Index = () => {
       name: "Total Tenants", 
       value: stats?.totalTenants.toString() || "0", 
       icon: Users, 
-      change: "+2", 
-      changeType: "increase" 
+      change: stats?.changes.tenants || "0%", 
+      changeType: Number(stats?.changes.tenants) > 0 ? "increase" : Number(stats?.changes.tenants) < 0 ? "decrease" : "neutral"
     },
     { 
       name: "Available Rooms", 
       value: stats?.availableRooms.toString() || "0", 
       icon: HomeIcon, 
-      change: "-1", 
-      changeType: "decrease" 
+      change: "0", 
+      changeType: "neutral"
     },
     { 
       name: "Revenue (Monthly)", 
       value: `₹${stats?.monthlyRevenue.toLocaleString() || "0"}`, 
       icon: DollarSign, 
-      change: "+8%", 
-      changeType: "increase" 
+      change: stats?.changes.revenue || "0%", 
+      changeType: Number(stats?.changes.revenue) > 0 ? "increase" : Number(stats?.changes.revenue) < 0 ? "decrease" : "neutral"
     },
     { 
       name: "Pending Requests", 
       value: stats?.pendingRequests.toString() || "0", 
       icon: AlertCircle, 
-      change: "0", 
-      changeType: "neutral" 
+      change: stats?.changes.maintenance || "0", 
+      changeType: "neutral"
     },
   ];
+
+  // ... keep existing code (filters section)
 
   return (
     <div className="space-y-6">
@@ -109,17 +111,19 @@ const Index = () => {
                 <p className="text-sm font-medium text-gray-500">{stat.name}</p>
                 <div className="flex items-baseline">
                   <p className="text-2xl font-semibold text-gray-900">{stat.value}</p>
-                  <span
-                    className={`ml-2 text-sm font-medium ${
-                      stat.changeType === "increase"
-                        ? "text-green-600"
-                        : stat.changeType === "decrease"
-                        ? "text-red-600"
-                        : "text-gray-500"
-                    }`}
-                  >
-                    {stat.change}
-                  </span>
+                  {stat.change !== "0" && (
+                    <span
+                      className={`ml-2 text-sm font-medium ${
+                        stat.changeType === "increase"
+                          ? "text-green-600"
+                          : stat.changeType === "decrease"
+                          ? "text-red-600"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      {stat.change}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
