@@ -12,14 +12,14 @@ export function RoomSelectionGrid({ rooms, selectedRoom, onSelect, preferredType
   const getOccupancyColor = (room: Room) => {
     if (room.status === "maintenance") return "bg-yellow-100 border-yellow-300";
     
-    const occupancyRate = (Number(room.currentOccupancy) / Number(room.capacity)) * 100;
+    const occupancyRate = (Number(room.current_occupancy) / Number(room.capacity)) * 100;
     if (occupancyRate === 0) return "bg-green-100 border-green-300";
     if (occupancyRate < 100) return "bg-blue-100 border-blue-300";
     return "bg-red-100 border-red-300";
   };
 
   const getOccupancyText = (room: Room) => {
-    return `${room.currentOccupancy}/${room.capacity}`;
+    return `${room.current_occupancy}/${room.capacity}`;
   };
 
   const filteredRooms = preferredType 
@@ -32,7 +32,7 @@ export function RoomSelectionGrid({ rooms, selectedRoom, onSelect, preferredType
         <button
           key={room.id}
           onClick={() => onSelect(room.id)}
-          disabled={room.status === "maintenance" || Number(room.currentOccupancy) >= Number(room.capacity)}
+          disabled={room.status === "maintenance" || Number(room.current_occupancy) >= Number(room.capacity)}
           className={cn(
             "p-3 border-2 rounded-lg transition-all",
             getOccupancyColor(room),

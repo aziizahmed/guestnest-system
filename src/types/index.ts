@@ -13,8 +13,8 @@ export interface Tenant {
     roomType: string;
     maxRent: number;
     floor?: string;
-  } | null;
-  documents?: Json[] | null;
+  };
+  documents: Json[] | null;
   created_at: string;
   updated_at: string;
   room?: {
@@ -33,7 +33,7 @@ export interface Room {
   status: 'available' | 'occupied' | 'maintenance';
   floor: string;
   building: string;
-  current_occupancy: number | null;
+  current_occupancy: number;
   amenities: string[] | null;
   hostel_id: string | null;
   created_at: string;
@@ -52,7 +52,7 @@ export interface Hostel {
   warden_name: string;
   warden_contact: string;
   warden_email: string | null;
-  occupied_rooms: number | null;
+  occupied_rooms: number;
   created_at: string;
   updated_at: string;
 }
@@ -88,10 +88,4 @@ export interface RoomAllocation {
   start_date: string;
   duration: number;
   status: 'active' | 'upcoming' | 'expired';
-}
-
-export interface PaymentSummary {
-  totalPaid: number;
-  totalPending: number;
-  totalOverdue: number;
 }

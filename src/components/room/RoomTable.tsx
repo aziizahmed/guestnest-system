@@ -62,7 +62,7 @@ export function RoomTable({ rooms, onEdit, onDelete }: RoomTableProps) {
                 </Badge>
               </TableCell>
               <TableCell>
-                {room.currentOccupancy}/{room.capacity}
+                {room.current_occupancy}/{room.capacity}
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
