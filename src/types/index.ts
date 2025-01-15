@@ -3,20 +3,18 @@ export interface Tenant {
   name: string;
   email: string;
   phone: string;
-  emergency_contact: string; // Changed from emergencyContact
-  join_date: string; // Changed from joinDate
-  lease_end: string; // Changed from leaseEnd
-  room_id?: string;
+  emergency_contact: string;
+  join_date: string;
+  lease_end: string;
+  room_id?: string | null;
   preferences?: {
     roomType: string;
     maxRent: number;
     floor?: string;
-  };
-  documents?: {
-    id: string;
-    type: string;
-    url: string;
-  }[];
+  } | null;
+  documents?: any[] | null;
+  created_at: string;
+  updated_at: string;
   room?: {
     number: string;
     building: string;
@@ -30,27 +28,31 @@ export interface Room {
   type: string;
   capacity: string;
   price: string;
-  status: "available" | "occupied" | "maintenance";
+  status: 'available' | 'occupied' | 'maintenance';
   floor: string;
-  building?: string;
-  current_occupancy?: number;
-  amenities?: string[];
-  hostel_id?: string;
+  building: string;
+  current_occupancy?: number | null;
+  amenities?: string[] | null;
+  hostel_id?: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Hostel {
   id: string;
   name: string;
   address: string;
-  total_rooms: number; // Changed from totalRooms
-  total_floors: number; // Changed from totalFloors
-  buildings: string[];
-  amenities: string[];
+  total_rooms: number;
+  total_floors: number;
+  buildings?: string[] | null;
+  amenities?: string[] | null;
   status: 'active' | 'maintenance';
-  occupied_rooms?: number;
-  warden_name: string; // Changed from nested warden object
+  warden_name: string;
   warden_contact: string;
-  warden_email?: string;
+  warden_email?: string | null;
+  occupied_rooms?: number | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Payment {
@@ -60,11 +62,28 @@ export interface Payment {
   date: string;
   status: 'paid' | 'pending' | 'overdue';
   payment_method: string;
-  notes?: string;
+  notes?: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
-export interface PaymentSummary {
-  totalPaid: number;
-  totalPending: number;
-  totalOverdue: number;
+export interface Expense {
+  id: string;
+  category: string;
+  sub_category: string;
+  amount: number;
+  date: string;
+  payment_mode: string;
+  description?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RoomAllocation {
+  id: string;
+  roomId: string;
+  tenantId: string;
+  startDate: string;
+  duration: number;
+  status: 'active' | 'upcoming' | 'expired';
 }
