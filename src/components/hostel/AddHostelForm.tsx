@@ -14,12 +14,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
 const formSchema = z.object({
-  name: z.string().min(1, "Hostel name is required"),
-  address: z.string().min(1, "Address is required"),
-  total_rooms: z.string().min(1, "Total rooms is required"),
-  total_floors: z.string().min(1, "Total floors is required"),
-  warden_name: z.string().min(1, "Warden name is required"),
-  warden_contact: z.string().min(1, "Warden contact is required"),
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  address: z.string().min(5, "Address must be at least 5 characters"),
+  total_rooms: z.coerce.number().min(1, "Must have at least 1 room"),
+  total_floors: z.coerce.number().min(1, "Must have at least 1 floor"),
+  warden_name: z.string().min(2, "Warden name must be at least 2 characters"),
+  warden_contact: z.string().min(10, "Contact number must be at least 10 characters"),
+  warden_email: z.string().email("Invalid email address").optional().nullable(),
 });
 
 interface AddHostelFormProps {
@@ -32,26 +33,21 @@ export function AddHostelForm({ onSubmit }: AddHostelFormProps) {
     defaultValues: {
       name: "",
       address: "",
-      total_rooms: "",
-      total_floors: "",
+      total_rooms: 0,
+      total_floors: 0,
       warden_name: "",
       warden_contact: "",
+      warden_email: "",
     },
   });
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
     const newHostel: Hostel = {
-      id: Date.now().toString(),
-      name: values.name,
-      address: values.address,
-      total_rooms: Number(values.total_rooms),
-      total_floors: Number(values.total_floors),
-      buildings: ["A"], // Default value
-      amenities: ["WiFi"], // Default value
-      status: "active",
-      warden_name: values.warden_name,
-      warden_contact: values.warden_contact,
-      warden_email: null,
+      ...values,
+      id: crypto.randomUUID(),
+      status: "active" as const,
+      buildings: ["A"],
+      amenities: ["WiFi"],
       occupied_rooms: 0,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -99,7 +95,7 @@ export function AddHostelForm({ onSubmit }: AddHostelFormProps) {
               <FormItem>
                 <FormLabel>Total Rooms</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="50" {...field} />
+                  <Input type="number" placeholder="0" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -113,7 +109,7 @@ export function AddHostelForm({ onSubmit }: AddHostelFormProps) {
               <FormItem>
                 <FormLabel>Total Floors</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="4" {...field} />
+                  <Input type="number" placeholder="0" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -143,6 +139,20 @@ export function AddHostelForm({ onSubmit }: AddHostelFormProps) {
               <FormLabel>Warden Contact</FormLabel>
               <FormControl>
                 <Input placeholder="Enter contact number" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="warden_email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Warden Email</FormLabel>
+              <FormControl>
+                <Input type="email" placeholder="Enter email address" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
