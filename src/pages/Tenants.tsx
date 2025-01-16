@@ -21,7 +21,15 @@ const Tenants = () => {
 
   const { data: tenants = [], isLoading, error } = useQuery({
     queryKey: ["tenants"],
-    queryFn: fetchTenants,
+    queryFn: async () => {
+      const data = await fetchTenants();
+      return data.map(tenant => ({
+        ...tenant,
+        preferences: typeof tenant.preferences === 'string' 
+          ? JSON.parse(tenant.preferences)
+          : tenant.preferences
+      })) as Tenant[];
+    }
   });
 
   const deleteTenantMutation = useMutation({

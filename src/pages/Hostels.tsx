@@ -22,26 +22,15 @@ const Hostels = () => {
 
   const { data: hostels = [], isLoading, error } = useQuery({
     queryKey: ["hostels"],
-    queryFn: async () => {
-      const { data, error } = await fetchHostels();
-      
-      if (error) throw error;
-      
-      return data.map(hostel => ({
-        ...hostel,
-        status: hostel.status as Hostel['status']
-      }));
-    }
+    queryFn: fetchHostels
   });
 
   const createHostelMutation = useMutation({
     mutationFn: (data: Omit<Hostel, "id" | "created_at" | "updated_at">) => {
-      // Ensure status is typed correctly
-      const hostelData = {
+      return createHostel({
         ...data,
-        status: data.status as "active" | "maintenance",
-      };
-      return createHostel(hostelData);
+        status: data.status as "active" | "maintenance"
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["hostels"] });
@@ -95,7 +84,7 @@ const Hostels = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {hostels.map((hostel) => (
-          <HostelCard key={hostel.id} hostel={hostel} />
+          <HostelCard key={hostel.id} hostel={hostel as Hostel} />
         ))}
       </div>
     </div>

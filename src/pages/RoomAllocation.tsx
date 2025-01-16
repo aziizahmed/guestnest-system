@@ -88,7 +88,10 @@ const RoomAllocation = () => {
   const handleAllocation = async (allocation: Omit<RoomAllocation, "id" | "created_at" | "updated_at">) => {
     const { data, error } = await supabase
       .from('room_allocations')
-      .insert(allocation)
+      .insert({
+        ...allocation,
+        status: allocation.status || 'active'
+      })
       .select()
       .single();
 
