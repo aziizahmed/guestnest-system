@@ -83,10 +83,13 @@ const Payments = () => {
     })));
   };
 
-  const handleAddPayment = async (payment: Omit<Payment, 'id'>) => {
+  const handleAddPayment = async (payment: Omit<Payment, 'id' | 'created_at' | 'updated_at'>) => {
     const { data, error } = await supabase
       .from('payments')
-      .insert(payment)
+      .insert({
+        ...payment,
+        status: payment.status as "paid" | "pending" | "overdue"
+      })
       .select()
       .single();
 
@@ -100,7 +103,7 @@ const Payments = () => {
       return;
     }
 
-    setPayments([data, ...payments]);
+    setPayments([data as Payment, ...payments]);
     toast({
       title: "Success",
       description: "Payment added successfully",
