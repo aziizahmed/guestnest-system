@@ -22,6 +22,7 @@ import * as z from "zod";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   hostel_id: z.string().min(1, "Hostel is required"),
@@ -41,6 +42,7 @@ interface AddRoomFormProps {
 
 export function AddRoomForm({ onSubmit, initialData, isEditing = false }: AddRoomFormProps) {
   const [selectedHostel, setSelectedHostel] = useState<Hostel | null>(null);
+  const { toast } = useToast();
 
   const { data: hostels = [] } = useQuery({
     queryKey: ['hostels'],
@@ -75,7 +77,6 @@ export function AddRoomForm({ onSubmit, initialData, isEditing = false }: AddRoo
     form.setValue('hostel_id', hostelId);
   };
 
-  // Generate floor options based on selected hostel's total floors
   const getFloorOptions = () => {
     if (!selectedHostel) return [];
     return Array.from({ length: selectedHostel.total_floors }, (_, i) => ({
@@ -84,7 +85,6 @@ export function AddRoomForm({ onSubmit, initialData, isEditing = false }: AddRoo
     }));
   };
 
-  // Helper function to add ordinal suffixes (1st, 2nd, 3rd, etc.)
   const getOrdinalSuffix = (num: number) => {
     const j = num % 10;
     const k = num % 100;
@@ -95,49 +95,65 @@ export function AddRoomForm({ onSubmit, initialData, isEditing = false }: AddRoo
   };
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-    let photoUrl = values.photo;
+    try {
+      let photoUrl = values.photo;
 
-    if (values.photo instanceof FileList && values.photo.length > 0) {
-      const file = values.photo[0];
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      if (values.photo instanceof FileList && values.photo.length > 0) {
+        const file = values.photo[0];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${crypto.randomUUID()}.${fileExt}`;
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('rooms')
-        .upload(fileName, file);
+        const { error: uploadError } = await supabase.storage
+          .from('rooms')
+          .upload(fileName, file);
 
-      if (uploadError) {
-        console.error('Error uploading file:', uploadError);
-        return;
+        if (uploadError) {
+          console.error('Error uploading file:', uploadError);
+          toast({
+            title: "Error",
+            description: "Failed to upload room photo",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('rooms')
+          .getPublicUrl(fileName);
+
+        photoUrl = publicUrl;
       }
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('rooms')
-        .getPublicUrl(fileName);
+      const newRoom: Room = {
+        id: initialData?.id || crypto.randomUUID(),
+        hostel_id: values.hostel_id,
+        number: values.number,
+        floor: values.floor,
+        building: (selectedHostel?.buildings?.[0]) || 'A',
+        type: "single",
+        capacity: values.capacity,
+        price: values.price,
+        status: values.status,
+        current_occupancy: 0,
+        amenities: [],
+        photo: photoUrl || null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
 
-      photoUrl = publicUrl;
-    }
-
-    const newRoom: Room = {
-      id: initialData?.id || crypto.randomUUID(),
-      hostel_id: values.hostel_id,
-      number: values.number,
-      floor: values.floor,
-      building: (selectedHostel?.buildings?.[0]) || 'A',
-      type: "single",
-      capacity: values.capacity,
-      price: values.price,
-      status: values.status,
-      current_occupancy: 0,
-      amenities: [],
-      photo: photoUrl || null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-    onSubmit(newRoom);
-    if (!isEditing) {
-      form.reset();
-      setSelectedHostel(null);
+      onSubmit(newRoom);
+      
+      if (!isEditing) {
+        form.reset();
+        setSelectedHostel(null);
+      }
+    } catch (error) {
+      console.error('Error handling form submission:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save room",
+        variant: "destructive",
+      });
     }
   };
 
