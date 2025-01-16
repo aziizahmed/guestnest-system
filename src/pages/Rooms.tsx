@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const Rooms = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -25,6 +25,7 @@ const Rooms = () => {
   const [viewMode, setViewMode] = useState<"grid" | "table">("table");
   const { toast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   // Fetch rooms data
   const { data: rooms = [], isLoading } = useQuery({
@@ -33,10 +34,7 @@ const Rooms = () => {
       console.log('Fetching rooms data...');
       const { data, error } = await supabase
         .from('rooms')
-        .select(`
-          *,
-          hostel:hostels(name)
-        `);
+        .select('*');
 
       if (error) {
         console.error('Error fetching rooms:', error);
@@ -65,6 +63,9 @@ const Rooms = () => {
         .eq('id', room.id);
 
       if (error) throw error;
+
+      // Invalidate and refetch rooms data
+      queryClient.invalidateQueries({ queryKey: ['rooms'] });
 
       toast({
         title: "Success",
