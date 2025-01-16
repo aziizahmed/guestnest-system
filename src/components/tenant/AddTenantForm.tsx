@@ -62,8 +62,8 @@ export function AddTenantForm({ onSubmit }: AddTenantFormProps) {
       floor: "",
       room_id: "",
       preferences: {
-        roomType: "single",
-        maxRent: 0,
+        roomType: "single", // Set a default value for roomType
+        maxRent: 0, // Set a default value for maxRent
       },
     },
   });
@@ -125,7 +125,10 @@ export function AddTenantForm({ onSubmit }: AddTenantFormProps) {
       join_date: values.join_date,
       lease_end: "", // Removed as per requirement
       room_id: values.room_id,
-      preferences: values.preferences,
+      preferences: {
+        roomType: values.preferences.roomType,
+        maxRent: values.preferences.maxRent,
+      },
       documents: [],
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
