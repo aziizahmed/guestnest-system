@@ -19,16 +19,17 @@ import { RoomAllocation } from "@/types";
 interface RoomAllocationFormProps {
   availableRooms: { id: string; number: string }[];
   availableTenants: { id: string; name: string }[];
-  onSubmit: (data: Omit<RoomAllocation, "id" | "status">) => void;
+  onSubmit: (data: Omit<RoomAllocation, "id" | "created_at" | "updated_at">) => void;
 }
 
 const RoomAllocationForm = ({ availableRooms, availableTenants, onSubmit }: RoomAllocationFormProps) => {
-  const form = useForm<Omit<RoomAllocation, "id" | "status">>({
+  const form = useForm<Omit<RoomAllocation, "id" | "created_at" | "updated_at">>({
     defaultValues: {
       room_id: "",
       tenant_id: "",
       start_date: "",
       duration: 3,
+      status: "active" as const,
     },
   });
 
