@@ -32,7 +32,7 @@ export function HostelCard({ hostel }: HostelCardProps) {
         <div className="flex items-center gap-2">
           <Home className="h-4 w-4 text-gray-500" />
           <span className="text-sm text-gray-600">
-            {hostel.total_rooms} Rooms • {hostel.total_floors} Floors
+            {hostel.total_floors} Floors
           </span>
         </div>
         <div className="flex items-center gap-2">

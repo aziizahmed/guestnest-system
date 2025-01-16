@@ -13,6 +13,7 @@ export const dummyRooms: Room[] = [
     current_occupancy: 0,
     amenities: ["AC", "Attached Bathroom", "Study Table"],
     hostel_id: null,
+    photo: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   },
@@ -28,6 +29,7 @@ export const dummyRooms: Room[] = [
     current_occupancy: 2,
     amenities: ["AC", "Attached Bathroom", "Study Table", "Balcony"],
     hostel_id: null,
+    photo: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   },
@@ -43,6 +45,7 @@ export const dummyRooms: Room[] = [
     current_occupancy: 0,
     amenities: ["AC", "Shared Bathroom", "Study Table"],
     hostel_id: null,
+    photo: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   }
@@ -120,7 +123,6 @@ export const dummyHostels: Hostel[] = [
     id: "H1",
     name: "Sunshine Hostel",
     address: "123 Main Street",
-    total_rooms: 50,
     total_floors: 4,
     buildings: ["A", "B"],
     amenities: ["WiFi", "Gym", "Laundry"],
@@ -129,6 +131,7 @@ export const dummyHostels: Hostel[] = [
     warden_contact: "+1234567890",
     warden_email: "john@example.com",
     occupied_rooms: 35,
+    photo: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   },
@@ -136,7 +139,6 @@ export const dummyHostels: Hostel[] = [
     id: "H2",
     name: "Moonlight Hostel",
     address: "456 Park Avenue",
-    total_rooms: 30,
     total_floors: 3,
     buildings: ["A"],
     amenities: ["WiFi", "Study Room"],
@@ -145,6 +147,7 @@ export const dummyHostels: Hostel[] = [
     warden_contact: "+1234567891",
     warden_email: "jane@example.com",
     occupied_rooms: 0,
+    photo: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   }

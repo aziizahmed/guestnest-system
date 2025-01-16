@@ -43,12 +43,6 @@ const HostelDetails = () => {
               <span className="font-medium">{hostel.occupied_rooms}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-600">Occupancy Rate</span>
-              <span className="font-medium">
-                {((hostel.occupied_rooms / hostel.total_rooms) * 100).toFixed(1)}%
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
               <span className="text-gray-600">Status</span>
               <Badge variant={hostel.status === "active" ? "default" : "destructive"}>
                 {hostel.status}
@@ -78,10 +72,6 @@ const HostelDetails = () => {
             <CardTitle>Building Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Total Rooms</span>
-              <span className="font-medium">{hostel.total_rooms}</span>
-            </div>
             <div className="flex items-center justify-between">
               <span className="text-gray-600">Total Floors</span>
               <span className="font-medium">{hostel.total_floors}</span>
