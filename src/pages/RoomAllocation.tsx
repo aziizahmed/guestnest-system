@@ -112,6 +112,17 @@ const RoomAllocation = () => {
     });
   };
 
+  // Transform rooms and tenants into the format expected by RoomAllocationForm
+  const availableRooms = rooms.map(room => ({
+    id: room.id,
+    number: room.number
+  }));
+
+  const availableTenants = tenants.map(tenant => ({
+    id: tenant.id,
+    name: tenant.name
+  }));
+
   return (
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
@@ -126,8 +137,8 @@ const RoomAllocation = () => {
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">New Allocation</h3>
           <RoomAllocationForm
-            rooms={rooms}
-            tenants={tenants}
+            availableRooms={availableRooms}
+            availableTenants={availableTenants}
             onSubmit={handleAllocation}
           />
         </Card>
