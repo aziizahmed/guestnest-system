@@ -15,18 +15,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Room } from "@/types";
+import { Room, Hostel } from "@/types";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const formSchema = z.object({
-  building: z.string().min(1, "Building is required"),
+  hostel_id: z.string().min(1, "Hostel is required"),
   floor: z.string().min(1, "Floor is required"),
   number: z.string().min(1, "Room number is required"),
   capacity: z.string().min(1, "Capacity is required"),
   price: z.string().min(1, "Price is required"),
   status: z.enum(["available", "occupied", "maintenance"]),
+  photo: z.any().optional(),
 });
 
 interface AddRoomFormProps {
@@ -36,31 +39,68 @@ interface AddRoomFormProps {
 }
 
 export function AddRoomForm({ onSubmit, initialData, isEditing = false }: AddRoomFormProps) {
+  const { data: hostels = [] } = useQuery({
+    queryKey: ['hostels'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('hostels')
+        .select('*');
+      
+      if (error) throw error;
+      return data as Hostel[];
+    },
+  });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      building: initialData?.building || "",
+      hostel_id: initialData?.hostel_id || "",
       floor: initialData?.floor || "",
       number: initialData?.number || "",
       capacity: initialData?.capacity || "",
       price: initialData?.price || "",
       status: initialData?.status || "available",
+      photo: initialData?.photo || "",
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    let photoUrl = values.photo;
+
+    if (values.photo instanceof FileList && values.photo.length > 0) {
+      const file = values.photo[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('rooms')
+        .upload(fileName, file);
+
+      if (uploadError) {
+        console.error('Error uploading file:', uploadError);
+        return;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('rooms')
+        .getPublicUrl(fileName);
+
+      photoUrl = publicUrl;
+    }
+
     const newRoom: Room = {
-      id: initialData?.id || Date.now().toString(),
-      building: values.building,
-      floor: values.floor,
+      id: initialData?.id || crypto.randomUUID(),
+      hostel_id: values.hostel_id,
       number: values.number,
+      floor: values.floor,
+      building: (hostels.find(h => h.id === values.hostel_id)?.buildings?.[0]) || 'A',
+      type: "single",
       capacity: values.capacity,
       price: values.price,
       status: values.status,
-      type: "single",
       current_occupancy: 0,
       amenities: [],
-      hostel_id: null,
+      photo: photoUrl || null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
@@ -75,20 +115,22 @@ export function AddRoomForm({ onSubmit, initialData, isEditing = false }: AddRoo
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="building"
+          name="hostel_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Building/Block</FormLabel>
+              <FormLabel>Hostel</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select building" />
+                    <SelectValue placeholder="Select hostel" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="A">Block A</SelectItem>
-                  <SelectItem value="B">Block B</SelectItem>
-                  <SelectItem value="C">Block C</SelectItem>
+                  {hostels.map((hostel) => (
+                    <SelectItem key={hostel.id} value={hostel.id}>
+                      {hostel.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -180,6 +222,25 @@ export function AddRoomForm({ onSubmit, initialData, isEditing = false }: AddRoo
                   <SelectItem value="maintenance">Maintenance</SelectItem>
                 </SelectContent>
               </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="photo"
+          render={({ field: { onChange, value, ...field } }) => (
+            <FormItem>
+              <FormLabel>Room Photo</FormLabel>
+              <FormControl>
+                <Input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={(e) => onChange(e.target.files)}
+                  {...field}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

@@ -54,9 +54,9 @@ export type Database = {
           id: string
           name: string
           occupied_rooms: number | null
+          photo: string | null
           status: string | null
           total_floors: number
-          total_rooms: number
           updated_at: string
           warden_contact: string
           warden_email: string | null
@@ -70,9 +70,9 @@ export type Database = {
           id?: string
           name: string
           occupied_rooms?: number | null
+          photo?: string | null
           status?: string | null
           total_floors: number
-          total_rooms: number
           updated_at?: string
           warden_contact: string
           warden_email?: string | null
@@ -86,9 +86,9 @@ export type Database = {
           id?: string
           name?: string
           occupied_rooms?: number | null
+          photo?: string | null
           status?: string | null
           total_floors?: number
-          total_rooms?: number
           updated_at?: string
           warden_contact?: string
           warden_email?: string | null
@@ -199,6 +199,7 @@ export type Database = {
           hostel_id: string | null
           id: string
           number: string
+          photo: string | null
           price: string
           status: string | null
           type: string
@@ -214,6 +215,7 @@ export type Database = {
           hostel_id?: string | null
           id?: string
           number: string
+          photo?: string | null
           price: string
           status?: string | null
           type: string
@@ -229,6 +231,7 @@ export type Database = {
           hostel_id?: string | null
           id?: string
           number?: string
+          photo?: string | null
           price?: string
           status?: string | null
           type?: string
