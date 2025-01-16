@@ -12,15 +12,16 @@ import { Hostel } from "@/types";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   address: z.string().min(5, "Address must be at least 5 characters"),
-  total_rooms: z.coerce.number().min(1, "Must have at least 1 room"),
   total_floors: z.coerce.number().min(1, "Must have at least 1 floor"),
   warden_name: z.string().min(2, "Warden name must be at least 2 characters"),
   warden_contact: z.string().min(10, "Contact number must be at least 10 characters"),
   warden_email: z.string().email("Invalid email address").optional().nullable(),
+  photo: z.any().optional(),
 });
 
 interface AddHostelFormProps {
@@ -33,20 +34,42 @@ export function AddHostelForm({ onSubmit }: AddHostelFormProps) {
     defaultValues: {
       name: "",
       address: "",
-      total_rooms: 0,
       total_floors: 0,
       warden_name: "",
       warden_contact: "",
       warden_email: "",
+      photo: "",
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    let photoUrl = null;
+
+    if (values.photo instanceof FileList && values.photo.length > 0) {
+      const file = values.photo[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('hostels')
+        .upload(fileName, file);
+
+      if (uploadError) {
+        console.error('Error uploading file:', uploadError);
+        return;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('hostels')
+        .getPublicUrl(fileName);
+
+      photoUrl = publicUrl;
+    }
+
     const newHostel: Hostel = {
       id: crypto.randomUUID(),
       name: values.name,
       address: values.address,
-      total_rooms: values.total_rooms,
       total_floors: values.total_floors,
       warden_name: values.warden_name,
       warden_contact: values.warden_contact,
@@ -55,6 +78,7 @@ export function AddHostelForm({ onSubmit }: AddHostelFormProps) {
       buildings: ["A"],
       amenities: ["WiFi"],
       occupied_rooms: 0,
+      photo: photoUrl,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
@@ -93,35 +117,19 @@ export function AddHostelForm({ onSubmit }: AddHostelFormProps) {
           )}
         />
 
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="total_rooms"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Total Rooms</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="0" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="total_floors"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Total Floors</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="0" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="total_floors"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Total Floors</FormLabel>
+              <FormControl>
+                <Input type="number" placeholder="0" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}
@@ -159,6 +167,25 @@ export function AddHostelForm({ onSubmit }: AddHostelFormProps) {
               <FormLabel>Warden Email</FormLabel>
               <FormControl>
                 <Input type="email" placeholder="Enter email address" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="photo"
+          render={({ field: { onChange, value, ...field } }) => (
+            <FormItem>
+              <FormLabel>Hostel Photo</FormLabel>
+              <FormControl>
+                <Input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={(e) => onChange(e.target.files)}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

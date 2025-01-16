@@ -36,6 +36,7 @@ export interface Room {
   current_occupancy: number | null;
   amenities: string[] | null;
   hostel_id: string | null;
+  photo: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -44,7 +45,6 @@ export interface Hostel {
   id: string;
   name: string;
   address: string;
-  total_rooms: number;
   total_floors: number;
   buildings: string[];
   amenities: string[];
@@ -53,6 +53,7 @@ export interface Hostel {
   warden_contact: string;
   warden_email: string | null;
   occupied_rooms: number | null;
+  photo: string | null;
   created_at: string;
   updated_at: string;
 }
