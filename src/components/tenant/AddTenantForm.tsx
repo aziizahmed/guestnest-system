@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
@@ -92,8 +91,7 @@ const AddTenantForm = () => {
         .from('rooms')
         .select('*')
         .eq('hostel_id', selectedHostel)
-        .eq('floor', selectedFloor)
-        .eq('status', 'available');
+        .eq('floor', selectedFloor);
       
       if (error) throw error;
       console.log('Rooms fetched:', data);
@@ -146,7 +144,7 @@ const AddTenantForm = () => {
         room_id: values.room_id,
         tenant_id: newTenant.id,
         start_date: values.join_date,
-        duration: 3, // Default duration
+        duration: 3, // Default duration in months
         status: 'active',
       };
 
@@ -155,6 +153,20 @@ const AddTenantForm = () => {
         .insert(roomAllocation);
 
       if (allocationError) throw allocationError;
+
+      // Update room's current occupancy
+      const selectedRoom = rooms.find(room => room.id === values.room_id);
+      if (selectedRoom) {
+        const { error: roomError } = await supabase
+          .from('rooms')
+          .update({ 
+            current_occupancy: (selectedRoom.current_occupancy || 0) + 1,
+            status: Number(selectedRoom.current_occupancy) + 1 >= Number(selectedRoom.capacity) ? 'occupied' : 'available'
+          })
+          .eq('id', values.room_id);
+
+        if (roomError) throw roomError;
+      }
 
       toast({
         title: "Success",
@@ -204,95 +216,105 @@ const AddTenantForm = () => {
               <FormItem>
                 <FormLabel>Join Date</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} />
+                  <input
+                    type="date"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="hostel_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Hostel</FormLabel>
-                <Select onValueChange={handleHostelChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select hostel" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {hostels.map((hostel) => (
-                      <SelectItem key={hostel.id} value={hostel.id}>
-                        {hostel.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold">Room Allocation</h2>
+            
+            <FormField
+              control={form.control}
+              name="hostel_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Hostel</FormLabel>
+                  <Select onValueChange={handleHostelChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select hostel" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {hostels.map((hostel) => (
+                        <SelectItem key={hostel.id} value={hostel.id}>
+                          {hostel.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="floor"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Floor</FormLabel>
-                <Select 
-                  onValueChange={handleFloorChange} 
-                  value={field.value}
-                  disabled={!selectedHostel}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder={selectedHostel ? "Select floor" : "Select a hostel first"} />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {getFloorOptions().map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="floor"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Floor</FormLabel>
+                  <Select 
+                    onValueChange={handleFloorChange} 
+                    value={field.value}
+                    disabled={!selectedHostel}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={selectedHostel ? "Select floor" : "Select a hostel first"} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {getFloorOptions().map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="room_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Room</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  value={field.value}
-                  disabled={!selectedFloor}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder={selectedFloor ? "Select room" : "Select a floor first"} />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {rooms.map((room) => (
-                      <SelectItem key={room.id} value={room.id}>
-                        Room {room.number} ({room.current_occupancy}/{room.capacity} occupied)
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="room_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Room</FormLabel>
+                  <Select 
+                    onValueChange={field.onChange} 
+                    value={field.value}
+                    disabled={!selectedFloor}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={selectedFloor ? "Select room" : "Select a floor first"} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {rooms
+                        .filter(room => Number(room.current_occupancy) < Number(room.capacity))
+                        .map((room) => (
+                          <SelectItem key={room.id} value={room.id}>
+                            Room {room.number} ({room.current_occupancy}/{room.capacity} occupied)
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
           <div className="flex gap-4">
             <Button type="submit">Add Tenant</Button>
