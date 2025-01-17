@@ -24,9 +24,14 @@ const AddTenantForm = () => {
       phone: "",
       emergency_contact: "",
       join_date: "",
+      lease_end: "",
       hostel_id: "",
       floor: "",
       room_id: "",
+      documents: {
+        aadhar: "",
+        others: [],
+      },
       preferences: {
         roomType: "single",
         maxRent: 0,
@@ -38,6 +43,32 @@ const AddTenantForm = () => {
     try {
       console.log('Submitting form with values:', values);
       
+      // Handle file uploads first
+      let aadharUrl = "";
+      let otherDocUrls: string[] = [];
+
+      if (values.documents?.aadhar) {
+        const file = values.documents.aadhar as unknown as File;
+        const { data: aadharData, error: aadharError } = await supabase.storage
+          .from('rooms')
+          .upload(`documents/${values.name}/aadhar/${file.name}`, file);
+
+        if (aadharError) throw aadharError;
+        aadharUrl = aadharData.path;
+      }
+
+      if (values.documents?.others?.length) {
+        const files = values.documents.others as unknown as File[];
+        for (const file of files) {
+          const { data: docData, error: docError } = await supabase.storage
+            .from('rooms')
+            .upload(`documents/${values.name}/others/${file.name}`, file);
+
+          if (docError) throw docError;
+          otherDocUrls.push(docData.path);
+        }
+      }
+
       const newTenant: Tenant = {
         id: crypto.randomUUID(),
         name: values.name,
@@ -45,13 +76,16 @@ const AddTenantForm = () => {
         phone: values.phone,
         emergency_contact: values.emergency_contact,
         join_date: values.join_date,
-        lease_end: "", // Not required anymore
+        lease_end: values.lease_end,
         room_id: values.room_id,
         preferences: {
           roomType: values.preferences.roomType,
           maxRent: values.preferences.maxRent,
         },
-        documents: [],
+        documents: [
+          { type: 'aadhar', url: aadharUrl },
+          ...otherDocUrls.map(url => ({ type: 'other', url }))
+        ],
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };

@@ -6,9 +6,14 @@ export const tenantFormSchema = z.object({
   phone: z.string().min(1, "Phone number is required"),
   emergency_contact: z.string().min(1, "Emergency contact is required"),
   join_date: z.string().min(1, "Join date is required"),
+  lease_end: z.string().min(1, "Lease end date is required"),
   hostel_id: z.string().min(1, "Hostel selection is required"),
   floor: z.string().min(1, "Floor is required"),
   room_id: z.string().min(1, "Room selection is required"),
+  documents: z.object({
+    aadhar: z.string().optional(),
+    others: z.array(z.string()).optional(),
+  }).optional(),
   preferences: z.object({
     roomType: z.string(),
     maxRent: z.number(),
