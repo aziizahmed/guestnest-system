@@ -93,8 +93,6 @@ export function RoomAllocationFields({ form }: RoomAllocationFieldsProps) {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Room Allocation</h2>
-      
       <FormField
         control={form.control}
         name="hostel_id"

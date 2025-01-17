@@ -36,6 +36,8 @@ const AddTenantForm = () => {
 
   const onSubmit = async (values: TenantFormValues) => {
     try {
+      console.log('Submitting form with values:', values);
+      
       const newTenant: Tenant = {
         id: crypto.randomUUID(),
         name: values.name,
@@ -115,8 +117,17 @@ const AddTenantForm = () => {
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <PersonalInfoFields form={form} />
-          <RoomAllocationFields form={form} />
+          <div className="space-y-6">
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h2 className="text-lg font-semibold mb-4">Personal Information</h2>
+              <PersonalInfoFields form={form} />
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h2 className="text-lg font-semibold mb-4">Room Allocation</h2>
+              <RoomAllocationFields form={form} />
+            </div>
+          </div>
 
           <div className="flex gap-4">
             <Button type="submit">Add Tenant</Button>
