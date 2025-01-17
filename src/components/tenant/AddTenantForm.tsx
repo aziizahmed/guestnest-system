@@ -1,55 +1,23 @@
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Room, Tenant } from "@/types";
+import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { PersonalInfoFields } from "./PersonalInfoFields";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-
-const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().min(1, "Phone number is required"),
-  emergency_contact: z.string().min(1, "Emergency contact is required"),
-  join_date: z.string().min(1, "Join date is required"),
-  hostel_id: z.string().min(1, "Hostel selection is required"),
-  floor: z.string().min(1, "Floor is required"),
-  room_id: z.string().min(1, "Room selection is required"),
-  preferences: z.object({
-    roomType: z.string(),
-    maxRent: z.number(),
-  }),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+import { RoomAllocationFields } from "./RoomAllocationFields";
+import { TenantFormValues, tenantFormSchema } from "./tenantFormSchema";
+import { Tenant } from "@/types";
 
 const AddTenantForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [selectedHostel, setSelectedHostel] = useState<string>("");
-  const [selectedFloor, setSelectedFloor] = useState<string>("");
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<TenantFormValues>({
+    resolver: zodResolver(tenantFormSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -66,54 +34,7 @@ const AddTenantForm = () => {
     },
   });
 
-  // Fetch hostels
-  const { data: hostels = [] } = useQuery({
-    queryKey: ['hostels'],
-    queryFn: async () => {
-      console.log('Fetching hostels...');
-      const { data, error } = await supabase
-        .from('hostels')
-        .select('*');
-      
-      if (error) throw error;
-      console.log('Hostels fetched:', data);
-      return data;
-    },
-  });
-
-  // Fetch rooms based on selected hostel and floor
-  const { data: rooms = [] } = useQuery({
-    queryKey: ['rooms', selectedHostel, selectedFloor],
-    enabled: !!selectedHostel && !!selectedFloor,
-    queryFn: async () => {
-      console.log('Fetching rooms...');
-      const { data, error } = await supabase
-        .from('rooms')
-        .select('*')
-        .eq('hostel_id', selectedHostel)
-        .eq('floor', selectedFloor);
-      
-      if (error) throw error;
-      console.log('Rooms fetched:', data);
-      return data as Room[];
-    },
-  });
-
-  const handleHostelChange = (value: string) => {
-    setSelectedHostel(value);
-    form.setValue("hostel_id", value);
-    form.setValue("floor", "");
-    form.setValue("room_id", "");
-    setSelectedFloor("");
-  };
-
-  const handleFloorChange = (value: string) => {
-    setSelectedFloor(value);
-    form.setValue("floor", value);
-    form.setValue("room_id", "");
-  };
-
-  const onSubmit = async (values: FormValues) => {
+  const onSubmit = async (values: TenantFormValues) => {
     try {
       const newTenant: Tenant = {
         id: crypto.randomUUID(),
@@ -155,7 +76,12 @@ const AddTenantForm = () => {
       if (allocationError) throw allocationError;
 
       // Update room's current occupancy
-      const selectedRoom = rooms.find(room => room.id === values.room_id);
+      const { data: selectedRoom } = await supabase
+        .from('rooms')
+        .select('*')
+        .eq('id', values.room_id)
+        .single();
+
       if (selectedRoom) {
         const { error: roomError } = await supabase
           .from('rooms')
@@ -183,24 +109,6 @@ const AddTenantForm = () => {
     }
   };
 
-  const getFloorOptions = () => {
-    const selectedHostelData = hostels.find(h => h.id === selectedHostel);
-    if (!selectedHostelData) return [];
-    return Array.from({ length: selectedHostelData.total_floors }, (_, i) => ({
-      value: String(i + 1),
-      label: `${i + 1}${getOrdinalSuffix(i + 1)} Floor`
-    }));
-  };
-
-  const getOrdinalSuffix = (num: number) => {
-    const j = num % 10;
-    const k = num % 100;
-    if (j === 1 && k !== 11) return "st";
-    if (j === 2 && k !== 12) return "nd";
-    if (j === 3 && k !== 13) return "rd";
-    return "th";
-  };
-
   return (
     <div className="max-w-2xl mx-auto py-8">
       <h1 className="text-2xl font-bold mb-6">Add New Tenant</h1>
@@ -208,113 +116,7 @@ const AddTenantForm = () => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <PersonalInfoFields form={form} />
-          
-          <FormField
-            control={form.control}
-            name="join_date"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Join Date</FormLabel>
-                <FormControl>
-                  <input
-                    type="date"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Room Allocation</h2>
-            
-            <FormField
-              control={form.control}
-              name="hostel_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Hostel</FormLabel>
-                  <Select onValueChange={handleHostelChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select hostel" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {hostels.map((hostel) => (
-                        <SelectItem key={hostel.id} value={hostel.id}>
-                          {hostel.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="floor"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Floor</FormLabel>
-                  <Select 
-                    onValueChange={handleFloorChange} 
-                    value={field.value}
-                    disabled={!selectedHostel}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder={selectedHostel ? "Select floor" : "Select a hostel first"} />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {getFloorOptions().map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="room_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Room</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    value={field.value}
-                    disabled={!selectedFloor}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder={selectedFloor ? "Select room" : "Select a floor first"} />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {rooms
-                        .filter(room => Number(room.current_occupancy) < Number(room.capacity))
-                        .map((room) => (
-                          <SelectItem key={room.id} value={room.id}>
-                            Room {room.number} ({room.current_occupancy}/{room.capacity} occupied)
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <RoomAllocationFields form={form} />
 
           <div className="flex gap-4">
             <Button type="submit">Add Tenant</Button>
