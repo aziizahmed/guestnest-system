@@ -33,7 +33,8 @@ export function RoomAllocationFields({ form }: RoomAllocationFieldsProps) {
       console.log('Fetching hostels...');
       const { data, error } = await supabase
         .from('hostels')
-        .select('*');
+        .select('*')
+        .eq('status', 'active');
       
       if (error) throw error;
       console.log('Hostels fetched:', data);
@@ -46,12 +47,13 @@ export function RoomAllocationFields({ form }: RoomAllocationFieldsProps) {
     queryKey: ['rooms', selectedHostel, selectedFloor],
     enabled: !!selectedHostel && !!selectedFloor,
     queryFn: async () => {
-      console.log('Fetching rooms...');
+      console.log('Fetching rooms for hostel:', selectedHostel, 'and floor:', selectedFloor);
       const { data, error } = await supabase
         .from('rooms')
         .select('*')
         .eq('hostel_id', selectedHostel)
-        .eq('floor', selectedFloor);
+        .eq('floor', selectedFloor)
+        .eq('status', 'available');
       
       if (error) throw error;
       console.log('Rooms fetched:', data);
