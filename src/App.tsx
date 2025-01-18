@@ -14,6 +14,7 @@ import EditRoom from "./pages/EditRoom";
 import HostelDetails from "./pages/HostelDetails";
 import Reports from "./pages/Reports";
 import { Toaster } from "@/components/ui/toaster";
+import AddTenantForm from "./components/tenant/AddTenantForm";
 
 function App() {
   return (
