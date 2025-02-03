@@ -15,7 +15,7 @@ export const useRoomQueries = (filters: RoomFilterState) => {
     const hasSpace = currentOccupancy < capacity;
 
     return {
-      status: room.status,
+      status: room.status as "available" | "occupied" | "maintenance",
       currentOccupancy,
       capacity,
       isAvailable,
@@ -44,7 +44,7 @@ export const useRoomQueries = (filters: RoomFilterState) => {
 
       const availableRooms = rooms
         .map((room) => {
-          const availability = checkRoomAvailability(room);
+          const availability = checkRoomAvailability(room as Room);
           console.log(`Room ${room.number} availability:`, availability);
 
           return {
@@ -52,6 +52,7 @@ export const useRoomQueries = (filters: RoomFilterState) => {
             number: room.number,
             current_occupancy: room.current_occupancy,
             capacity: room.capacity,
+            status: room.status as "available" | "occupied" | "maintenance",
             ...availability
           };
         })
