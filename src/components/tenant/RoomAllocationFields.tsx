@@ -51,6 +51,17 @@ export function RoomAllocationFields({ form }: RoomAllocationFieldsProps) {
     enabled: !!selectedHostel && !!selectedFloor,
     queryFn: async () => {
       console.log('Fetching rooms for hostel:', selectedHostel, 'and floor:', selectedFloor);
+      
+      // First, let's log all rooms for this hostel and floor to see what we're getting
+      const { data: allRooms, error: allRoomsError } = await supabase
+        .from('rooms')
+        .select('*')
+        .eq('hostel_id', selectedHostel)
+        .eq('floor', selectedFloor);
+      
+      console.log('All rooms for this hostel and floor:', allRooms);
+
+      // Now get only available rooms
       const { data, error } = await supabase
         .from('rooms')
         .select('*')
@@ -63,17 +74,24 @@ export function RoomAllocationFields({ form }: RoomAllocationFieldsProps) {
         throw error;
       }
 
+      console.log('Available rooms before filtering:', data);
+
       // Filter rooms client-side where current_occupancy < capacity
-      const availableRooms = data.filter(room => 
-        (room.current_occupancy || 0) < parseInt(room.capacity)
-      );
+      const availableRooms = data.filter(room => {
+        const currentOccupancy = room.current_occupancy || 0;
+        const capacity = parseInt(room.capacity);
+        const isAvailable = currentOccupancy < capacity;
+        console.log(`Room ${room.number}: occupancy=${currentOccupancy}, capacity=${capacity}, isAvailable=${isAvailable}`);
+        return isAvailable;
+      });
       
-      console.log('Available rooms:', availableRooms);
+      console.log('Final available rooms:', availableRooms);
       return availableRooms as Room[];
     },
   });
 
   const handleHostelChange = (value: string) => {
+    console.log('Hostel changed to:', value);
     setSelectedHostel(value);
     form.setValue("hostel_id", value);
     form.setValue("floor", "");
@@ -82,6 +100,7 @@ export function RoomAllocationFields({ form }: RoomAllocationFieldsProps) {
   };
 
   const handleFloorChange = (value: string) => {
+    console.log('Floor changed to:', value);
     setSelectedFloor(value);
     form.setValue("floor", value);
     form.setValue("room_id", "");
