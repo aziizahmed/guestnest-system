@@ -27,7 +27,7 @@ export function RoomAllocationFields({ form }: RoomAllocationFieldsProps) {
   const [selectedFloor, setSelectedFloor] = useState<string>("");
 
   // Fetch hostels
-  const { data: hostels = [] } = useQuery({
+  const { data: hostels = [], isLoading: isLoadingHostels } = useQuery({
     queryKey: ['hostels'],
     queryFn: async () => {
       console.log('Fetching hostels...');
@@ -36,14 +36,17 @@ export function RoomAllocationFields({ form }: RoomAllocationFieldsProps) {
         .select('*')
         .eq('status', 'active');
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching hostels:', error);
+        throw error;
+      }
       console.log('Hostels fetched:', data);
       return data;
     },
   });
 
   // Fetch rooms based on selected hostel and floor
-  const { data: rooms = [] } = useQuery({
+  const { data: rooms = [], isLoading: isLoadingRooms } = useQuery({
     queryKey: ['rooms', selectedHostel, selectedFloor],
     enabled: !!selectedHostel && !!selectedFloor,
     queryFn: async () => {
@@ -53,9 +56,13 @@ export function RoomAllocationFields({ form }: RoomAllocationFieldsProps) {
         .select('*')
         .eq('hostel_id', selectedHostel)
         .eq('floor', selectedFloor)
-        .eq('status', 'available');
+        .eq('status', 'available')
+        .lt('current_occupancy', 'capacity');  // Only show rooms that aren't full
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching rooms:', error);
+        throw error;
+      }
       console.log('Rooms fetched:', data);
       return data as Room[];
     },
@@ -104,7 +111,7 @@ export function RoomAllocationFields({ form }: RoomAllocationFieldsProps) {
             <Select onValueChange={handleHostelChange} value={field.value}>
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select hostel" />
+                  <SelectValue placeholder={isLoadingHostels ? "Loading hostels..." : "Select hostel"} />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
@@ -133,7 +140,7 @@ export function RoomAllocationFields({ form }: RoomAllocationFieldsProps) {
             >
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder={selectedHostel ? "Select floor" : "Select a hostel first"} />
+                  <SelectValue placeholder={!selectedHostel ? "Select a hostel first" : "Select floor"} />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
@@ -158,21 +165,29 @@ export function RoomAllocationFields({ form }: RoomAllocationFieldsProps) {
             <Select 
               onValueChange={field.onChange} 
               value={field.value}
-              disabled={!selectedFloor}
+              disabled={!selectedFloor || isLoadingRooms}
             >
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder={selectedFloor ? "Select room" : "Select a floor first"} />
+                  <SelectValue 
+                    placeholder={
+                      !selectedFloor 
+                        ? "Select a floor first" 
+                        : isLoadingRooms 
+                          ? "Loading rooms..." 
+                          : rooms.length === 0 
+                            ? "No available rooms" 
+                            : "Select room"
+                    } 
+                  />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {rooms
-                  .filter(room => Number(room.current_occupancy) < Number(room.capacity))
-                  .map((room) => (
-                    <SelectItem key={room.id} value={room.id}>
-                      Room {room.number} ({room.current_occupancy}/{room.capacity} occupied)
-                    </SelectItem>
-                  ))}
+                {rooms.map((room) => (
+                  <SelectItem key={room.id} value={room.id}>
+                    Room {room.number} ({room.current_occupancy}/{room.capacity} occupied)
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <FormMessage />
