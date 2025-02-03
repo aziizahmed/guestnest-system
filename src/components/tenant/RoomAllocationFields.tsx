@@ -1,22 +1,11 @@
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Room } from "@/types";
 import { UseFormReturn } from "react-hook-form";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
+import { HostelSelector } from "./HostelSelector";
+import { FloorSelector } from "./FloorSelector";
+import { RoomSelector } from "./RoomSelector";
+import { useRoomQueries } from "@/hooks/useRoomQueries";
 
 interface RoomAllocationFieldsProps {
   form: UseFormReturn<any>;
@@ -25,68 +14,29 @@ interface RoomAllocationFieldsProps {
 export function RoomAllocationFields({ form }: RoomAllocationFieldsProps) {
   const [selectedHostel, setSelectedHostel] = useState<string>("");
   const [selectedFloor, setSelectedFloor] = useState<string>("");
+  const [totalFloors, setTotalFloors] = useState<number>(0);
 
-  // Fetch hostels
-  const { data: hostels = [], isLoading: isLoadingHostels } = useQuery({
-    queryKey: ['hostels'],
+  // Fetch hostel details when a hostel is selected
+  const { data: hostelDetails } = useQuery({
+    queryKey: ['hostel-details', selectedHostel],
+    enabled: !!selectedHostel,
     queryFn: async () => {
-      console.log('Fetching hostels...');
       const { data, error } = await supabase
         .from('hostels')
-        .select('*')
-        .eq('status', 'active');
-      
-      if (error) {
-        console.error('Error fetching hostels:', error);
-        throw error;
-      }
-      console.log('Hostels fetched:', data);
+        .select('total_floors')
+        .eq('id', selectedHostel)
+        .single();
+
+      if (error) throw error;
+      setTotalFloors(data.total_floors);
       return data;
-    },
+    }
   });
 
-  // Fetch rooms based on selected hostel and floor
-  const { data: rooms = [], isLoading: isLoadingRooms } = useQuery({
-    queryKey: ['rooms', selectedHostel, selectedFloor],
-    enabled: !!selectedHostel && !!selectedFloor,
-    queryFn: async () => {
-      console.log('Fetching rooms for hostel:', selectedHostel, 'and floor:', selectedFloor);
-      
-      // First, let's log all rooms for this hostel and floor
-      const { data: allRooms, error: allRoomsError } = await supabase
-        .from('rooms')
-        .select('*')
-        .eq('hostel_id', selectedHostel)
-        .eq('floor', selectedFloor);
-      
-      console.log('All rooms for this hostel and floor:', allRooms);
-
-      if (allRoomsError) {
-        console.error('Error fetching all rooms:', allRoomsError);
-        throw allRoomsError;
-      }
-
-      // Filter available rooms client-side
-      const availableRooms = allRooms.filter(room => {
-        const isAvailable = room.status === 'available';
-        const currentOccupancy = room.current_occupancy || 0;
-        const capacity = parseInt(room.capacity);
-        const hasSpace = currentOccupancy < capacity;
-        
-        console.log(`Room ${room.number}:`, {
-          status: room.status,
-          currentOccupancy,
-          capacity,
-          isAvailable,
-          hasSpace
-        });
-        
-        return isAvailable && hasSpace;
-      });
-
-      console.log('Available rooms:', availableRooms);
-      return availableRooms as Room[];
-    },
+  // Use the custom hook for room queries
+  const { data: availableRooms = [], isLoading: isLoadingRooms } = useRoomQueries({
+    hostelId: selectedHostel,
+    floor: selectedFloor
   });
 
   const handleHostelChange = (value: string) => {
@@ -105,117 +55,25 @@ export function RoomAllocationFields({ form }: RoomAllocationFieldsProps) {
     form.setValue("room_id", "");
   };
 
-  const getFloorOptions = () => {
-    const selectedHostelData = hostels.find(h => h.id === selectedHostel);
-    if (!selectedHostelData) return [];
-    return Array.from({ length: selectedHostelData.total_floors }, (_, i) => ({
-      value: String(i + 1),
-      label: `${i + 1}${getOrdinalSuffix(i + 1)} Floor`
-    }));
-  };
-
-  const getOrdinalSuffix = (num: number) => {
-    const j = num % 10;
-    const k = num % 100;
-    if (j === 1 && k !== 11) return "st";
-    if (j === 2 && k !== 12) return "nd";
-    if (j === 3 && k !== 13) return "rd";
-    return "th";
-  };
-
   return (
     <div className="space-y-4">
-      <FormField
-        control={form.control}
-        name="hostel_id"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Hostel</FormLabel>
-            <Select onValueChange={handleHostelChange} value={field.value}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder={isLoadingHostels ? "Loading hostels..." : "Select hostel"} />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {hostels.map((hostel) => (
-                  <SelectItem key={hostel.id} value={hostel.id}>
-                    {hostel.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
+      <HostelSelector 
+        form={form} 
+        onHostelChange={handleHostelChange} 
       />
 
-      <FormField
-        control={form.control}
-        name="floor"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Floor</FormLabel>
-            <Select 
-              onValueChange={handleFloorChange} 
-              value={field.value}
-              disabled={!selectedHostel}
-            >
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder={!selectedHostel ? "Select a hostel first" : "Select floor"} />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {getFloorOptions().map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
+      <FloorSelector 
+        form={form}
+        onFloorChange={handleFloorChange}
+        selectedHostel={selectedHostel}
+        totalFloors={totalFloors}
       />
 
-      <FormField
-        control={form.control}
-        name="room_id"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Room</FormLabel>
-            <Select 
-              onValueChange={field.onChange} 
-              value={field.value}
-              disabled={!selectedFloor || isLoadingRooms}
-            >
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue 
-                    placeholder={
-                      !selectedFloor 
-                        ? "Select a floor first" 
-                        : isLoadingRooms 
-                          ? "Loading rooms..." 
-                          : rooms.length === 0 
-                            ? "No available rooms" 
-                            : "Select room"
-                    } 
-                  />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {rooms.map((room) => (
-                  <SelectItem key={room.id} value={room.id}>
-                    Room {room.number} ({room.current_occupancy || 0}/{room.capacity} occupied)
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
+      <RoomSelector 
+        form={form}
+        rooms={availableRooms}
+        isLoading={isLoadingRooms}
+        selectedFloor={selectedFloor}
       />
     </div>
   );
