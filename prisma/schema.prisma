@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  email            String
+  phone            String
+  emergencyContact String
+  joinDate         DateTime
+  leaseEnd         DateTime
+  roomId           String?   @db.ObjectId
+  preferences      Json
+  documents        Json[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  room             Room?     @relation(fields: [roomId], references: [id])
+  payments         Payment[]
+  allocations      RoomAllocation[]
+}
+
+model Room {
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  hostelId         String?   @db.ObjectId
+  number           String
+  floor            String
+  building         String
+  type             String
+  capacity         Int
+  price            Float
+  status           String    @default("available")
+  currentOccupancy Int       @default(0)
+  amenities        String[]
+  photo            String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  hostel           Hostel?   @relation(fields: [hostelId], references: [id])
+  tenants          Tenant[]
+  allocations      RoomAllocation[]
+}
+
+model Hostel {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  address        String
+  totalFloors    Int
+  buildings      String[]
+  amenities      String[]
+  status         String    @default("active")
+  wardenName     String
+  wardenContact  String
+  wardenEmail    String?
+  occupiedRooms  Int       @default(0)
+  photo          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  rooms          Room[]
+}
+
+model Payment {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId      String   @db.ObjectId
+  amount        Float
+  date          DateTime
+  status        String
+  paymentMethod String
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+}
+
+model RoomAllocation {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  roomId    String   @db.ObjectId
+  tenantId  String   @db.ObjectId
+  startDate DateTime
+  duration  Int
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  room      Room     @relation(fields: [roomId], references: [id])
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+}
+
+model Expense {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  category    String
+  subCategory String
+  amount      Float
+  date        DateTime
+  paymentMode String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
