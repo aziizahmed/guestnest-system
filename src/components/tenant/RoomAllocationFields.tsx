@@ -56,15 +56,20 @@ export function RoomAllocationFields({ form }: RoomAllocationFieldsProps) {
         .select('*')
         .eq('hostel_id', selectedHostel)
         .eq('floor', selectedFloor)
-        .eq('status', 'available')
-        .lt('current_occupancy', 'capacity');  // Only show rooms that aren't full
+        .eq('status', 'available');
       
       if (error) {
         console.error('Error fetching rooms:', error);
         throw error;
       }
-      console.log('Rooms fetched:', data);
-      return data as Room[];
+
+      // Filter rooms client-side where current_occupancy < capacity
+      const availableRooms = data.filter(room => 
+        (room.current_occupancy || 0) < parseInt(room.capacity)
+      );
+      
+      console.log('Available rooms:', availableRooms);
+      return availableRooms as Room[];
     },
   });
 
@@ -185,7 +190,7 @@ export function RoomAllocationFields({ form }: RoomAllocationFieldsProps) {
               <SelectContent>
                 {rooms.map((room) => (
                   <SelectItem key={room.id} value={room.id}>
-                    Room {room.number} ({room.current_occupancy}/{room.capacity} occupied)
+                    Room {room.number} ({room.current_occupancy || 0}/{room.capacity} occupied)
                   </SelectItem>
                 ))}
               </SelectContent>
