@@ -47,19 +47,22 @@ export const useRoomQueries = (filters: RoomFilterState) => {
           const availability = checkRoomAvailability(room as Room);
           console.log(`Room ${room.number} availability:`, availability);
 
-          return {
+          const availableRoom: AvailableRoom = {
             id: room.id,
             number: room.number,
             current_occupancy: room.current_occupancy,
-            capacity: room.capacity,
+            capacity: room.capacity, // This is already a string from the database
             status: room.status as "available" | "occupied" | "maintenance",
-            ...availability
+            isAvailable: availability.isAvailable,
+            hasSpace: availability.hasSpace
           };
+
+          return availableRoom;
         })
         .filter((room) => room.isAvailable && room.hasSpace);
 
       console.log('Available rooms after filtering:', availableRooms);
-      return availableRooms as AvailableRoom[];
+      return availableRooms;
     }
   });
 };
