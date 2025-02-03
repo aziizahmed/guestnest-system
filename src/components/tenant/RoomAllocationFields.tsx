@@ -52,7 +52,7 @@ export function RoomAllocationFields({ form }: RoomAllocationFieldsProps) {
     queryFn: async () => {
       console.log('Fetching rooms for hostel:', selectedHostel, 'and floor:', selectedFloor);
       
-      // First, let's log all rooms for this hostel and floor to see what we're getting
+      // First, let's log all rooms for this hostel and floor
       const { data: allRooms, error: allRoomsError } = await supabase
         .from('rooms')
         .select('*')
@@ -61,31 +61,30 @@ export function RoomAllocationFields({ form }: RoomAllocationFieldsProps) {
       
       console.log('All rooms for this hostel and floor:', allRooms);
 
-      // Now get only available rooms
-      const { data, error } = await supabase
-        .from('rooms')
-        .select('*')
-        .eq('hostel_id', selectedHostel)
-        .eq('floor', selectedFloor)
-        .eq('status', 'available');
-      
-      if (error) {
-        console.error('Error fetching rooms:', error);
-        throw error;
+      if (allRoomsError) {
+        console.error('Error fetching all rooms:', allRoomsError);
+        throw allRoomsError;
       }
 
-      console.log('Available rooms before filtering:', data);
-
-      // Filter rooms client-side where current_occupancy < capacity
-      const availableRooms = data.filter(room => {
+      // Filter available rooms client-side
+      const availableRooms = allRooms.filter(room => {
+        const isAvailable = room.status === 'available';
         const currentOccupancy = room.current_occupancy || 0;
         const capacity = parseInt(room.capacity);
-        const isAvailable = currentOccupancy < capacity;
-        console.log(`Room ${room.number}: occupancy=${currentOccupancy}, capacity=${capacity}, isAvailable=${isAvailable}`);
-        return isAvailable;
+        const hasSpace = currentOccupancy < capacity;
+        
+        console.log(`Room ${room.number}:`, {
+          status: room.status,
+          currentOccupancy,
+          capacity,
+          isAvailable,
+          hasSpace
+        });
+        
+        return isAvailable && hasSpace;
       });
-      
-      console.log('Final available rooms:', availableRooms);
+
+      console.log('Available rooms:', availableRooms);
       return availableRooms as Room[];
     },
   });
